@@ -39,4 +39,4 @@ Cliente Web → Requisição HTTP → ESP32 → Servo Motor → Dispensador de r
 
 ## Status
 
-🚧 Projeto em desenvolvimento.
+Projeto em desenvolvimento.
