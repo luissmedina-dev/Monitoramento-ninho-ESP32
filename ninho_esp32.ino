@@ -40,6 +40,8 @@
 #include <WebServer.h>
 #include <ESPmDNS.h>
 #include <Preferences.h>
+#include <LittleFS.h>
+#include <esp_system.h>
 #include <time.h>
 #include <sys/time.h>
 #include <driver/gpio.h>
@@ -190,9 +192,35 @@ PontoTemp hist[MAX_HIST];
 int histInicio = 0, histN = 0;
 unsigned long tUltimoHist = 0;
 
+// --- Log do sistema (memória flash, LittleFS) ---
+// Cada ocorrência vira um registro de tamanho fixo (80 bytes). Como todos têm
+// o mesmo tamanho, o registro número i fica na posição i * 80 do arquivo:
+// dá para ler de trás para frente só com seek(), sem interpretar texto.
+enum NivelLog : uint8_t { NIVEL_INFO, NIVEL_AVISO, NIVEL_ERRO };
+const char* NOMES_NIVEL[] = { "INFO", "AVISO", "ERRO" };
+struct RegistroLog {
+  uint32_t id;      // número sequencial do evento
+  uint32_t boot;    // em qual inicialização do ESP32 o evento aconteceu
+  uint32_t t;       // data/hora (segundos desde 1970); 0 = hora ainda não acertada
+  uint32_t ms;      // millis() no momento do evento
+  uint8_t nivel;    // NIVEL_INFO, NIVEL_AVISO ou NIVEL_ERRO
+  char msg[63];     // texto, terminado em '\0'
+};                  // 4 * 4 + 1 + 63 = 80 bytes
+// Retenção: dois arquivos de até 75 registros. Quando o atual enche, o antigo
+// é apagado e o atual passa a ser o antigo. Ficam guardados entre 75 e 150
+// eventos (no máximo 12 KB) e nunca é preciso reescrever um arquivo inteiro.
+const int LOG_POR_ARQUIVO = 75;
+const char* ARQ_LOG        = "/log.bin";
+const char* ARQ_LOG_ANTIGO = "/log_antigo.bin";
+bool logOk = false;          // o LittleFS foi montado?
+uint32_t bootAtual = 0;      // contador de inicializações (guardado na NVS)
+uint32_t proximoIdLog = 1;
+int nLogAtual = 0;           // registros no arquivo atual
+
 // Temporizadores do loop
 unsigned long tDist = 0, tDHT = 0, tStatus = 0;
 bool horaJaValida = false;
+bool horaPeloNavegador = false;   // para o log saber quem acertou a hora
 
 // ==========================================================================
 // HORA (NTP pela internet ou pelo relógio do navegador)
@@ -215,6 +243,98 @@ void corrigirPesagensSemHora() {
     prefs.putBytes("pesagens", pesagens, nPesagens * sizeof(Pesagem));
     versaoPesagens++;
   }
+}
+
+// ==========================================================================
+// LOG DO SISTEMA (gravado na memória flash com o LittleFS)
+// ==========================================================================
+// Toda gravação acontece na task do loop(): no setup(), no próprio loop() ou
+// nos handlers da página, que também rodam dentro do loop (server.handleClient).
+void registrarLog(NivelLog nivel, const String& msg) {
+  RegistroLog r = {};
+  r.id = proximoIdLog++;
+  r.boot = bootAtual;
+  r.t = horaValida() ? (uint32_t)time(nullptr) : 0;
+  r.ms = millis();
+  r.nivel = nivel;
+  strlcpy(r.msg, msg.c_str(), sizeof(r.msg));
+  if (msg.length() >= sizeof(r.msg)) {
+    // O texto foi cortado. Tira os bytes não ASCII do fim para não deixar
+    // uma letra acentuada pela metade (em UTF-8 ela ocupa 2 bytes).
+    size_t n = strlen(r.msg);
+    while (n > 0 && ((uint8_t)r.msg[n - 1] & 0x80)) n--;
+    r.msg[n] = '\0';
+  }
+  Serial.printf("[%s] %s\n", NOMES_NIVEL[nivel], r.msg);
+  if (!logOk) return;
+
+  if (nLogAtual >= LOG_POR_ARQUIVO) {   // arquivo cheio: ele vira o antigo
+    LittleFS.remove(ARQ_LOG_ANTIGO);
+    LittleFS.rename(ARQ_LOG, ARQ_LOG_ANTIGO);
+    nLogAtual = 0;
+  }
+  File f = LittleFS.open(ARQ_LOG, FILE_APPEND);
+  if (!f) return;
+  f.write((const uint8_t*)&r, sizeof(r));
+  f.close();
+  nLogAtual++;
+}
+
+// Lê o id do último registro de um arquivo (0 se ele estiver vazio).
+uint32_t ultimoIdLog(const char* caminho) {
+  if (!LittleFS.exists(caminho)) return 0;
+  File f = LittleFS.open(caminho, FILE_READ);
+  int n = f.size() / sizeof(RegistroLog);
+  RegistroLog r = {};
+  if (n > 0) {
+    f.seek((n - 1) * sizeof(RegistroLog));
+    f.read((uint8_t*)&r, sizeof(r));
+  }
+  f.close();
+  return r.id;
+}
+
+void iniciarLog() {
+  bootAtual = prefs.getUInt("boot", 0) + 1;   // conta as inicializações
+  prefs.putUInt("boot", bootAtual);
+
+  // true = formata a partição na primeira vez (ou se ela estiver corrompida).
+  // O LittleFS usa a partição "spiffs" do esquema padrão da Arduino IDE.
+  logOk = LittleFS.begin(true);
+  if (!logOk) {
+    Serial.println("Erro: não consegui montar o LittleFS. O log fica só no Serial.");
+    return;
+  }
+  if (LittleFS.exists(ARQ_LOG)) {
+    File f = LittleFS.open(ARQ_LOG, FILE_READ);
+    nLogAtual = f.size() / sizeof(RegistroLog);
+    f.close();
+  }
+  // Continua a numeração de onde parou (o arquivo atual pode estar vazio
+  // logo depois de uma troca, então olha também o antigo).
+  uint32_t ultimo = ultimoIdLog(ARQ_LOG);
+  if (ultimo == 0) ultimo = ultimoIdLog(ARQ_LOG_ANTIGO);
+  proximoIdLog = ultimo + 1;
+}
+
+// Primeiro evento de cada boot, com o motivo do último reset.
+void registrarInicio() {
+  const char* motivo = "desconhecido";
+  bool grave = false;   // reset causado por falha: também vira ERRO
+  switch (esp_reset_reason()) {
+    case ESP_RST_POWERON:   motivo = "energia ligada ou botão EN"; break;
+    case ESP_RST_EXT:       motivo = "pino de reset externo"; break;
+    case ESP_RST_SW:        motivo = "reinício por software"; break;
+    case ESP_RST_DEEPSLEEP: motivo = "saída do deep sleep"; break;
+    case ESP_RST_PANIC:     motivo = "travamento (panic)"; grave = true; break;
+    case ESP_RST_INT_WDT:
+    case ESP_RST_TASK_WDT:
+    case ESP_RST_WDT:       motivo = "watchdog"; grave = true; break;
+    case ESP_RST_BROWNOUT:  motivo = "queda de tensão (brownout)"; grave = true; break;
+    default: break;
+  }
+  registrarLog(NIVEL_INFO, String("ESP32 iniciado (") + motivo + ")");
+  if (grave) registrarLog(NIVEL_ERRO, String("Reset por ") + motivo);
 }
 
 // ==========================================================================
@@ -692,6 +812,18 @@ void addCampo(String& j, const char* nome, const String& valor) {
   j += valor;
 }
 
+// Coloca "\" antes de aspas e barras invertidas e troca caracteres de
+// controle por espaço, para o texto não quebrar o JSON.
+String escaparJson(const char* s) {
+  String r;
+  for (; *s; s++) {
+    if (*s == '"' || *s == '\\') { r += '\\'; r += *s; }
+    else if ((uint8_t)*s < 0x20) r += ' ';
+    else r += *s;
+  }
+  return r;
+}
+
 void responder(bool ok, const String& msg) {
   String j = "{\"ok\":";
   j += ok ? "true" : "false";
@@ -796,13 +928,58 @@ void handleCsv() {
   server.send(200, "text/csv; charset=utf-8", c);
 }
 
+// Log do mais recente para o mais antigo. A resposta vai em pedaços
+// ("chunked"), um registro por vez: o JSON inteiro nunca fica na RAM.
+void handleLogs() {
+  server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+  server.send(200, "application/json", "");
+  server.sendContent("{\"boot_atual\":" + String(bootAtual) + ",\"logs\":[");
+
+  // Eventos sem hora: usa como referência um evento mais novo do mesmo boot
+  // que tem hora. Lendo de trás para frente, a última referência guardada
+  // antes de chegar neles é a mais antiga com hora: o "Hora acertada".
+  // Como millis() conta desde o boot, a diferença de ms entre os dois é o
+  // tempo que passou entre eles. Nada é regravado na flash.
+  uint32_t bootRef = 0, tRef = 0, msRef = 0;
+  bool primeiro = true;
+  const char* arquivos[] = { ARQ_LOG, ARQ_LOG_ANTIGO };   // o atual tem os mais novos
+  for (const char* caminho : arquivos) {
+    if (!logOk || !LittleFS.exists(caminho)) continue;
+    File f = LittleFS.open(caminho, FILE_READ);
+    int n = f.size() / sizeof(RegistroLog);
+    for (int i = n - 1; i >= 0; i--) {
+      RegistroLog r;
+      f.seek(i * sizeof(RegistroLog));
+      if (f.read((uint8_t*)&r, sizeof(r)) != sizeof(r)) break;
+      r.msg[sizeof(r.msg) - 1] = '\0';
+
+      if (r.t != 0) { bootRef = r.boot; tRef = r.t; msRef = r.ms; }
+      else if (tRef != 0 && r.boot == bootRef) r.t = tRef - (msRef - r.ms) / 1000;
+
+      String j = primeiro ? "{" : ",{";
+      j += "\"id\":" + String(r.id);
+      j += ",\"boot\":" + String(r.boot);
+      j += ",\"t\":" + String(r.t);
+      j += ",\"ms\":" + String(r.ms);
+      j += ",\"nivel\":\"";
+      j += NOMES_NIVEL[r.nivel <= NIVEL_ERRO ? r.nivel : NIVEL_INFO];
+      j += "\",\"msg\":\"" + escaparJson(r.msg) + "\"}";
+      server.sendContent(j);
+      primeiro = false;
+    }
+    f.close();
+  }
+  server.sendContent("]}");
+  server.sendContent("");   // pedaço vazio = fim da resposta
+}
+
 void handleHora() {
   if (!horaValida() && server.hasArg("ts")) {
     long ts = server.arg("ts").toInt();
     if (ts > 1700000000L) {
       struct timeval tv = { (time_t)ts, 0 };
       settimeofday(&tv, nullptr);
-      Serial.println("Relógio acertado pelo navegador.");
+      horaPeloNavegador = true;   // o evento "Hora acertada" é gravado no loop
     }
   }
   server.send(200, "application/json", horaValida() ? "{\"ok\":true}" : "{\"ok\":false}");
@@ -851,6 +1028,7 @@ void configurarServidor() {
   server.on("/pesagens", HTTP_GET, handlePesagens);
   server.on("/pesagens.csv", HTTP_GET, handleCsv);
   server.on("/hora", HTTP_GET, handleHora);
+  server.on("/logs", HTTP_GET, handleLogs);
   server.on("/liberar", HTTP_POST, handleLiberar);
   server.on("/auto", HTTP_POST, handleAuto);
   server.on("/tarar", HTTP_POST, handleTarar);
@@ -946,6 +1124,8 @@ void setup() {
 
   // Configurações guardadas
   prefs.begin("ninho", false);
+  iniciarLog();
+  registrarInicio();
   alimentacaoAuto = prefs.getBool("auto", true);
   fatorBalanca = prefs.getFloat("fator", FATOR_CALIBRACAO_PADRAO);
   if (fabsf(fatorBalanca) < 0.001f) fatorBalanca = FATOR_CALIBRACAO_PADRAO;
@@ -1005,6 +1185,7 @@ void loop() {
   if (!horaJaValida && horaValida()) {     // o relógio acabou de ser acertado
     horaJaValida = true;
     corrigirPesagensSemHora();
+    registrarLog(NIVEL_INFO, horaPeloNavegador ? "Hora acertada (navegador)" : "Hora acertada (NTP)");
   }
 
   if (agora - tStatus >= 5000) {
