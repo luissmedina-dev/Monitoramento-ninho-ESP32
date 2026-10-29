@@ -129,6 +129,10 @@ const unsigned long INTERVALO_REPESAGEM_MS  = 60UL * 60 * 1000;   // filhote par
 const float TEMP_MIN_C = 25.0;   // faixa ideal: AJUSTE para a espécie do filhote
 const float TEMP_MAX_C = 35.0;
 const unsigned long INTERVALO_HIST_TEMP_MS = 60UL * 1000;  // 1 ponto por minuto no gráfico
+const float HISTERESE_TEMP_C = 0.5;  // para "voltar à faixa" precisa entrar 0,5 °C além do limite
+
+// --- Log dos sensores ---
+const unsigned long TEMPO_CONFIRMA_SENSOR_MS = 5000;  // falha (ou volta) precisa durar 5 s para ir ao log
 
 // ==========================================================================
 // OBJETOS E VARIÁVEIS
@@ -226,6 +230,11 @@ bool logOk = false;          // o LittleFS foi montado?
 uint32_t bootAtual = 0;      // contador de inicializações (guardado na NVS)
 uint32_t proximoIdLog = 1;
 int nLogAtual = 0;           // registros no arquivo atual
+
+// --- Estado dos sensores já registrado no log (para gravar só as mudanças) ---
+bool dhtComErro = false, balancaComErro = false, distComErro = false;
+unsigned long tDhtEstado = 0, tBalancaEstado = 0, tDistEstado = 0;
+bool tempForaFaixa = false;
 
 // Temporizadores do loop
 unsigned long tDist = 0, tDHT = 0, tStatus = 0;
@@ -405,7 +414,7 @@ bool abrirComporta(const char* origem) {
   totalLiberacoes++;
   horaUltimaLiberacao = horaValida() ? time(nullptr) : 0;
   strlcpy(origemUltima, origem, sizeof(origemUltima));
-  Serial.printf("Comida liberada (%s). Distância: %.1f cm\n", origem, distanciaCm);
+  registrarLog(NIVEL_INFO, String("Comida liberada (") + origem + ")");
   return true;
 }
 
@@ -481,7 +490,8 @@ void registrarPesagem(float gramas, bool automatica) {
   nPesagens++;
   prefs.putBytes("pesagens", pesagens, nPesagens * sizeof(Pesagem));
   versaoPesagens++;
-  Serial.printf("Pesagem %s registrada: %.1f g\n", automatica ? "automática" : "manual", gramas);
+  registrarLog(NIVEL_INFO, String("Pesagem ") + (automatica ? "automática" : "manual") +
+                           " registrada: " + comVirgula(gramas, 1) + " g");
 }
 
 void verificarPesagemAutomatica() {
@@ -534,7 +544,7 @@ void atualizarBalanca() {
     offsetBalanca = lround(mediaBruta);
     prefs.putLong("offset", offsetBalanca);
     tararAoIniciar = false;
-    Serial.println("Balança zerada automaticamente (primeira vez).");
+    registrarLog(NIVEL_INFO, "Balança tarada automaticamente (primeira vez)");
   }
 
   float p = (mediaBruta - offsetBalanca) / fatorBalanca;
@@ -548,7 +558,7 @@ bool tararBalanca() {
   offsetBalanca = lround(mediaBruta);
   prefs.putLong("offset", offsetBalanca);
   pesadoNestaVez = false;
-  Serial.println("Balança zerada.");
+  registrarLog(NIVEL_INFO, "Balança tarada");
   return true;
 }
 
@@ -560,8 +570,54 @@ String calibrarBalanca(float massaG) {
   if (fabs(diferenca) < 500) return "Coloque o objeto na balança antes de calibrar";
   fatorBalanca = diferenca / massaG;
   prefs.putFloat("fator", fatorBalanca);
-  Serial.printf("Balança calibrada. Novo fator: %.2f\n", fatorBalanca);
+  registrarLog(NIVEL_INFO, "Balança calibrada (fator " + comVirgula(fatorBalanca, 2) + ")");
   return "";
+}
+
+// ==========================================================================
+// EVENTOS DOS SENSORES (vão para o log só quando o estado muda)
+// ==========================================================================
+// Aceita a mudança (ok -> erro ou erro -> ok) só depois que ela dura 5 s
+// seguidos, como o "prato vazio" que precisa durar 3 s. Assim um sensor que
+// falha e volta várias vezes seguidas não enche o log.
+// Retorna true quando o estado registrado mudou.
+bool mudouEstado(bool erroAgora, bool& comErro, unsigned long& tEstado) {
+  unsigned long agora = millis();
+  if (erroAgora == comErro) {   // nada mudou: reinicia a contagem
+    tEstado = agora;
+    return false;
+  }
+  if (agora - tEstado < TEMPO_CONFIRMA_SENSOR_MS) return false;
+  comErro = erroAgora;
+  tEstado = agora;
+  return true;
+}
+
+// Só lê o estado que as funções dos sensores já calcularam; não mexe nelas.
+void verificarSensores() {
+  if (mudouEstado(isnan(temperatura), dhtComErro, tDhtEstado))
+    registrarLog(dhtComErro ? NIVEL_ERRO : NIVEL_INFO,
+                 dhtComErro ? "DHT22 sem leitura" : "DHT22 voltou a responder");
+  if (mudouEstado(!balancaOk, balancaComErro, tBalancaEstado))
+    registrarLog(balancaComErro ? NIVEL_ERRO : NIVEL_INFO,
+                 balancaComErro ? "HX711 sem leitura" : "HX711 voltou a responder");
+  if (mudouEstado(isnan(distanciaCm), distComErro, tDistEstado))
+    registrarLog(distComErro ? NIVEL_ERRO : NIVEL_INFO,
+                 distComErro ? "HC-SR04 sem leitura" : "HC-SR04 voltou a responder");
+
+  // Temperatura fora da faixa, com histerese: sai da faixa ao passar do
+  // limite, mas só "volta" quando fica 0,5 °C para dentro dele. Sem isso,
+  // uma leitura oscilando em cima do limite (35,0 / 35,1 / 35,0...)
+  // geraria um evento a cada leitura.
+  if (isnan(temperatura)) return;
+  if (!tempForaFaixa && (temperatura < TEMP_MIN_C || temperatura > TEMP_MAX_C)) {
+    tempForaFaixa = true;
+    registrarLog(NIVEL_AVISO, "Temperatura fora da faixa: " + comVirgula(temperatura, 1) + " °C");
+  } else if (tempForaFaixa && temperatura >= TEMP_MIN_C + HISTERESE_TEMP_C &&
+             temperatura <= TEMP_MAX_C - HISTERESE_TEMP_C) {
+    tempForaFaixa = false;
+    registrarLog(NIVEL_INFO, "Temperatura voltou à faixa: " + comVirgula(temperatura, 1) + " °C");
+  }
 }
 
 // ==========================================================================
@@ -1001,8 +1057,11 @@ void handleLiberar() {
 }
 
 void handleAuto() {
+  bool antes = alimentacaoAuto;
   alimentacaoAuto = server.arg("on") == "1";
   prefs.putBool("auto", alimentacaoAuto);
+  if (alimentacaoAuto != antes)   // só registra se realmente mudou
+    registrarLog(NIVEL_INFO, alimentacaoAuto ? "Alimentação automática ligada" : "Alimentação automática desligada");
   responder(true, alimentacaoAuto ? "Alimentação automática ligada" : "Alimentação automática desligada");
 }
 
@@ -1025,6 +1084,7 @@ void handlePesar() {
 }
 
 void handleLimpar() {
+  registrarLog(NIVEL_AVISO, "Pesagens apagadas (" + String(nPesagens) + ")");
   nPesagens = 0;
   prefs.remove("pesagens");
   versaoPesagens++;
@@ -1236,6 +1296,7 @@ void loop() {
     lerDHT();
   }
   guardarHistoricoTemp();
+  verificarSensores();
 
   if (!horaJaValida && horaValida()) {     // o relógio acabou de ser acertado
     horaJaValida = true;
