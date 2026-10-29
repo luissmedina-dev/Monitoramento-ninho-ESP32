@@ -27,6 +27,9 @@
         Em muitos celulares e computadores também funciona http://ninho.local
      4. Se o Wi-Fi não conectar, o ESP32 cria a rede "Ninho-ESP32"
         (senha ninho1234). Conecte nela e abra http://192.168.4.1
+        Ele continua tentando o Wi-Fi a cada 15 s; quando conectar, a rede
+        "Ninho-ESP32" é desligada e a página passa a usar o IP do roteador.
+     5. O log do sistema fica em http://<ip>/logs (ver API.md).
 
    Comandos pelo Monitor Serial (envie com "Nova linha"):
      t        -> zera (tara) a balança, que deve estar vazia
@@ -58,6 +61,7 @@ const char* WIFI_SENHA = "123456Fer";   // senha da rede
 const char* AP_NOME   = "Ninho-ESP32";  // rede própria, criada se o Wi-Fi falhar
 const char* AP_SENHA  = "ninho1234";    // mínimo de 8 caracteres
 const char* NOME_MDNS = "ninho";        // endereço http://ninho.local
+const unsigned long INTERVALO_TENTATIVA_WIFI_MS = 15000;  // sem Wi-Fi: tenta de novo a cada 15 s
 
 // ==========================================================================
 // 2. PINOS — todos do mesmo lado da placa
@@ -135,6 +139,12 @@ DHT dht(PINO_DHT, DHT22);
 HX711 balanca;
 Preferences prefs;
 bool modoAP = false;
+
+// --- Wi-Fi: estado da conexão, conferido a cada volta do loop ---
+bool wifiConectado = false;       // estado na última verificação
+bool jaConectouAntes = false;     // separa "conectado" (1ª vez) de "reconectado"
+unsigned long tPerdeuWiFi = 0, tTentativaWiFi = 0;
+uint32_t reconexoes = 0;
 
 // Leituras atuais
 float temperatura = NAN, umidade = NAN;
@@ -1045,6 +1055,9 @@ void configurarServidor() {
 void conectarWiFi() {
   WiFi.setHostname(NOME_MDNS);
   WiFi.mode(WIFI_STA);
+  // As novas tentativas ficam por conta de verificarWiFi(), no loop, em um
+  // intervalo fixo. Assim é o nosso código que decide quando tentar de novo.
+  WiFi.setAutoReconnect(false);
   WiFi.begin(WIFI_NOME, WIFI_SENHA);
   Serial.printf("Conectando ao Wi-Fi \"%s\"", WIFI_NOME);
   unsigned long t0 = millis();
@@ -1053,23 +1066,64 @@ void conectarWiFi() {
     Serial.print('.');
   }
   Serial.println();
+  // Hora pela internet (horário de Brasília). Se ainda não houver rede, o
+  // ESP32 sincroniza sozinho quando conectar.
+  configTzTime("<-03>3", "a.st1.ntp.br", "pool.ntp.org");
 
   if (WiFi.status() == WL_CONNECTED) {
     modoAP = false;
-    WiFi.setAutoReconnect(true);
-    configTzTime("<-03>3", "a.st1.ntp.br", "pool.ntp.org");  // horário de Brasília
     Serial.printf("Conectado! Abra no navegador: http://%s\n", WiFi.localIP().toString().c_str());
   } else {
+    // Modo AP+STA: cria a rede própria (AP) e, ao mesmo tempo, continua
+    // tentando a rede configurada (STA) pelo verificarWiFi().
     modoAP = true;
-    WiFi.disconnect(true);
-    WiFi.mode(WIFI_AP);
+    WiFi.mode(WIFI_AP_STA);
     WiFi.softAP(AP_NOME, AP_SENHA);
+    registrarLog(NIVEL_AVISO, String("Entrou em modo AP (rede ") + AP_NOME + ")");
     Serial.printf("Não conectou. Criei a rede \"%s\" (senha %s).\n", AP_NOME, AP_SENHA);
     Serial.printf("Conecte nela e abra: http://%s\n", WiFi.softAPIP().toString().c_str());
   }
   if (MDNS.begin(NOME_MDNS)) {
     MDNS.addService("http", "tcp", 80);
     Serial.printf("Também pode tentar: http://%s.local\n", NOME_MDNS);
+  }
+}
+
+// Chamada a cada volta do loop. Compara o estado atual com o da volta
+// anterior para saber quando a conexão caiu ou voltou. Não usa os callbacks
+// de eventos do Wi-Fi, que rodam em outra task e não poderiam gravar o log.
+void verificarWiFi() {
+  unsigned long agora = millis();
+  bool conectado = WiFi.status() == WL_CONNECTED;
+
+  if (conectado && !wifiConectado) {            // acabou de conectar
+    String ip = WiFi.localIP().toString();
+    if (jaConectouAntes) {
+      reconexoes++;
+      registrarLog(NIVEL_INFO, "Wi-Fi reconectado após " + String((agora - tPerdeuWiFi) / 1000) +
+                               " s fora (IP " + ip + ")");
+    } else {
+      registrarLog(NIVEL_INFO, "Wi-Fi conectado (IP " + ip + ")");
+    }
+    jaConectouAntes = true;
+    if (modoAP) {                               // a rede própria não é mais necessária
+      WiFi.softAPdisconnect(true);
+      modoAP = false;
+      Serial.printf("Rede própria desligada. Abra no navegador: http://%s\n", ip.c_str());
+    }
+  } else if (!conectado && wifiConectado) {     // acabou de cair
+    tPerdeuWiFi = agora;
+    tTentativaWiFi = agora;                     // primeira tentativa daqui a 15 s
+    registrarLog(NIVEL_AVISO, "Wi-Fi perdido");
+  }
+  wifiConectado = conectado;
+
+  // Sem conexão: tenta de novo a cada 15 s. O WiFi.begin() não espera a
+  // conexão terminar, então o loop continua rodando normalmente.
+  if (!conectado && agora - tTentativaWiFi >= INTERVALO_TENTATIVA_WIFI_MS) {
+    tTentativaWiFi = agora;
+    WiFi.disconnect();
+    WiFi.begin(WIFI_NOME, WIFI_SENHA);
   }
 }
 
@@ -1166,6 +1220,7 @@ void setup() {
 
 void loop() {
   server.handleClient();
+  verificarWiFi();
   unsigned long agora = millis();
 
   atualizarBalanca();                      // sempre que o HX711 tiver leitura nova
