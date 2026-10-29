@@ -137,7 +137,8 @@ const unsigned long TEMPO_CONFIRMA_SENSOR_MS = 5000;  // falha (ou volta) precis
 // ==========================================================================
 // OBJETOS E VARIÁVEIS
 // ==========================================================================
-WebServer server(80);
+const int PORTA_HTTP = 80;
+WebServer server(PORTA_HTTP);
 Servo servo;
 DHT dht(PINO_DHT, DHT22);
 HX711 balanca;
@@ -910,8 +911,14 @@ void handleDados() {
     long falta = (long)INTERVALO_MIN_LIBERACAO_MS - (long)(agora - tUltimaLiberacao);
     if (falta > 0) espera = falta / 1000;
   }
+  // Rede (RF4). Em modo AP mostra a interface da rede própria do ESP32;
+  // senão, a interface STA (cliente do roteador). Cada uma tem o seu MAC.
+  String ip   = modoAP ? WiFi.softAPIP().toString() : WiFi.localIP().toString();
+  String mac  = modoAP ? WiFi.softAPmacAddress() : WiFi.macAddress();
+  String ssid = modoAP ? AP_NOME : WIFI_NOME;
+
   String j = "{";
-  j.reserve(700);
+  j.reserve(950);
   addCampo(j, "temp", num(temperatura, 1));
   addCampo(j, "umid", num(umidade, 0));
   addCampo(j, "temp_min", String(TEMP_MIN_C, 1));
@@ -933,6 +940,14 @@ void handleDados() {
   addCampo(j, "modo_ap", modoAP ? "true" : "false");
   addCampo(j, "rssi", String(modoAP ? 0 : WiFi.RSSI()));
   addCampo(j, "hora_ok", horaValida() ? "true" : "false");
+  addCampo(j, "interface", modoAP ? "\"AP\"" : "\"STA\"");
+  addCampo(j, "ip", "\"" + ip + "\"");
+  addCampo(j, "mac", "\"" + mac + "\"");
+  addCampo(j, "ssid", "\"" + escaparJson(ssid.c_str()) + "\"");
+  addCampo(j, "porta", String(PORTA_HTTP));
+  addCampo(j, "conectado", WiFi.status() == WL_CONNECTED ? "true" : "false");
+  addCampo(j, "uptime_s", String(millis() / 1000));
+  addCampo(j, "reconexoes", String(reconexoes));
   j += "}";
   server.send(200, "application/json", j);
 }
@@ -1144,7 +1159,7 @@ void conectarWiFi() {
     Serial.printf("Conecte nela e abra: http://%s\n", WiFi.softAPIP().toString().c_str());
   }
   if (MDNS.begin(NOME_MDNS)) {
-    MDNS.addService("http", "tcp", 80);
+    MDNS.addService("http", "tcp", PORTA_HTTP);
     Serial.printf("Também pode tentar: http://%s.local\n", NOME_MDNS);
   }
 }
