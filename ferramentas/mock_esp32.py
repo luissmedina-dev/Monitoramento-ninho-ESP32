@@ -1,8 +1,9 @@
 """
 MOCK DO ESP32 — para desenvolver a página sem a placa.
 
-Serve a MESMA página que está dentro do ninho_esp32.ino (lida direto do
-arquivo, então não existe cópia para ficar desatualizada) e responde aos
+Serve a MESMA página do firmware (lida direto do pagina.h ao lado do
+ninho_esp32.ino, ou do próprio .ino se não houver pagina.h; então não existe
+cópia para ficar desatualizada) e responde aos
 mesmos endpoints do API.md com dados falsos que mudam com o tempo.
 
 Uso (precisa só de Python 3, sem instalar nada):
@@ -14,7 +15,7 @@ Uso (precisa só de Python 3, sem instalar nada):
                                                  "eclosao" e POST /eclosao dá 404
 
 Depois abra http://localhost:8000 e recarregue a página (F5) a cada
-mudança que fizer no HTML/CSS/JS do .ino.
+mudança que fizer no HTML/CSS/JS do pagina.h.
 
 ATENÇÃO: isto NÃO substitui o teste na placa. Os dados são inventados.
 """
@@ -187,12 +188,19 @@ class Handler(BaseHTTPRequestHandler):
         pass
 
 
+def arquivo_da_pagina(caminho_ino):
+    # A PAGINA fica em pagina.h, ao lado do .ino; versões antigas a tinham no próprio .ino
+    h = os.path.join(os.path.dirname(caminho_ino), "pagina.h")
+    return h if os.path.exists(h) else caminho_ino
+
+
 def ler_pagina(caminho_ino):
-    with open(caminho_ino, encoding="utf-8") as f:
+    arquivo = arquivo_da_pagina(caminho_ino)
+    with open(arquivo, encoding="utf-8") as f:
         texto = f.read()
     m = re.search(r'R"rawliteral\((.*?)\)rawliteral"', texto, re.S)
     if not m:
-        return "<h1>Não achei a PAGINA (rawliteral) no .ino</h1>"
+        return f"<h1>Não achei a PAGINA (rawliteral) em {os.path.basename(arquivo)}</h1>"
     return m.group(1)
 
 
@@ -207,6 +215,6 @@ if __name__ == "__main__":
     logs_iniciais(a.cenario)
     srv = ThreadingHTTPServer(("127.0.0.1", a.porta), Handler)
     srv.ino, srv.cenario = os.path.abspath(a.ino), a.cenario
-    print(f"Mock do ESP32 ({a.cenario}) lendo a página de: {srv.ino}")
+    print(f"Mock do ESP32 ({a.cenario}) lendo a página de: {arquivo_da_pagina(srv.ino)}")
     print(f"Abra http://localhost:{a.porta}  (Ctrl+C para parar)")
     srv.serve_forever()
