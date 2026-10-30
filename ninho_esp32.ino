@@ -705,6 +705,19 @@ input[type=number]{font:inherit;width:100px;min-height:44px;padding:0 8px;border
 .g-linha{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
 .temp{stroke:var(--marca);fill:var(--marca)}.umid{stroke:var(--frio);fill:var(--frio)}
 .g-x{stroke:var(--alerta);stroke-width:2;stroke-linecap:round}
+.vistas{display:flex;align-items:center;gap:2px;padding:3px;background:var(--fundo);border-radius:10px}
+.vistas .nota{padding:0 8px}
+.vistas button{min-height:44px;padding:0 14px;border:0;border-radius:8px;background:transparent;color:var(--suave2);font-size:13px;font-weight:600;cursor:pointer}
+.vistas button[aria-pressed=true]{background:var(--cartao);color:var(--texto);font-weight:700;box-shadow:0 1px 2px rgba(43,36,32,.12)}
+.vistas button:disabled{opacity:.45;cursor:default}
+#ninhoSvg svg{max-width:440px;margin:0 auto}
+.legenda{display:flex;align-items:center;gap:8px;margin:0}
+#corLeg{width:12px;height:12px;border-radius:3px;flex:none}
+.lado{display:flex;gap:14px;align-items:flex-start}
+.fig{width:150px;flex:none}
+@media (min-width:760px){.fig{width:170px}}
+/* Textos dentro das ilustrações seguem o tema claro/escuro */
+.il-t{fill:var(--suave);font-size:11px}.il-c{fill:var(--cartao);stroke:var(--suave);stroke-width:1.5}
 .vazio{color:var(--suave);font-size:13px;text-align:center;padding:30px 0;margin:0}
 .ev{display:flex;flex-direction:column;gap:4px;padding:10px 0;border-top:1px solid var(--linha);font-size:14px}
 .nv{padding:2px 7px;border-radius:5px;font-size:10px;font-weight:750;letter-spacing:.06em}
@@ -747,8 +760,17 @@ input[type=number]{font:inherit;width:100px;min-height:44px;padding:0 8px;border
   <div id="avisos" class="c12 o0"></div>
 
   <section class="cartao c7 o1">
-    <h2 class="rot">Ninho · filhote</h2>
-    <div class="tres">
+    <div class="cab">
+      <h2 class="rot">Ninho · filhote</h2>
+      <div class="vistas" role="group" aria-label="Vista do ninho">
+        <span class="nota" id="semTermica" hidden>vista térmica indisponível</span>
+        <button aria-pressed="true" id="vNormal" onclick="vista(false)">Normal</button>
+        <button aria-pressed="false" id="vTermica" onclick="vista(true)">Térmica</button>
+      </div>
+    </div>
+    <div id="ninhoSvg"></div>
+    <p class="nota legenda" id="legenda" hidden><span id="corLeg"></span>Uma cor só: temperatura no ponto do sensor (DHT22). Não é mapa de calor.</p>
+    <div class="tres" style="border-top:1px solid var(--linha);padding-top:12px">
       <div><span class="rot">Temperatura</span><span class="big" id="temp">—</span><span class="nota" id="faixa"></span></div>
       <div><span class="rot">Umidade</span><span class="big" id="umid">—</span><span class="nota">relativa · DHT22</span></div>
       <div><span class="rot">Peso</span><span class="big" id="peso">—</span><span class="nota" id="pesoNota"></span></div>
@@ -793,11 +815,14 @@ input[type=number]{font:inherit;width:100px;min-height:44px;padding:0 8px;border
 
   <section class="cartao c5 o2">
     <div class="cab"><h2 class="rot">Comedouro dos pais</h2><span class="chip marca" id="modo">—</span></div>
-    <div class="tres">
-      <div><span class="rot">Comida no prato</span><span class="big" id="nivel">—</span><span class="nota" id="dist"></span></div>
-      <div><span class="rot">Comporta</span><span class="med" id="comporta">—</span></div>
+    <div class="lado">
+      <div class="fig" id="comSvg"></div>
+      <div class="pilha" style="gap:12px">
+        <div class="pilha"><span class="rot">Comida no prato</span><span class="big" id="nivel">—</span><span class="nota" id="dist"></span></div>
+        <div class="pilha"><span class="rot">Comporta</span><span class="med" id="comporta">—</span></div>
+        <div class="pilha"><span class="rot">Próxima liberação automática</span><span class="med" id="proxima"></span></div>
+      </div>
     </div>
-    <div class="pilha"><span class="rot">Próxima liberação automática</span><span class="med" id="proxima"></span></div>
     <span class="nota" id="ultima"></span>
     <label class="chave"><input type="checkbox" id="auto" onchange="acao('/auto?on='+(this.checked?1:0))"> Liberar comida automaticamente</label>
     <button class="btn prim" id="btnLiberar" onclick="acao('/liberar')">Liberar comida</button>
@@ -1007,10 +1032,10 @@ function desenharPainel() {
 
   // Ninho
   const quente = d.temp != null && d.temp > d.temp_max, frio = d.temp != null && d.temp < d.temp_min;
-  $('temp').innerHTML = fmt(d.temp, 1) + ' <small>°C</small>';
+  $('temp').innerHTML = d.temp == null ? '—' : fmt(d.temp, 1) + ' <small>°C</small>';
   $('temp').className = 'big' + (quente ? ' q' : frio ? ' f' : '');
   $('faixa').textContent = 'ideal ' + fmt(d.temp_min, 0) + '–' + fmt(d.temp_max, 0) + ' °C';
-  $('umid').innerHTML = fmt(d.umid, 0) + ' <small>%</small>';
+  $('umid').innerHTML = d.umid == null ? '—' : fmt(d.umid, 0) + ' <small>%</small>';
   const pesando = d.balanca_ok && d.peso != null && d.peso >= 5;
   $('peso').innerHTML = pesando ? fmt(d.peso, 1) + ' <small>g</small>' : '—';
   $('pesoNota').textContent = !d.balanca_ok ? 'balança sem leitura' : pesando ? 'na balança' : 'balança vazia';
@@ -1036,6 +1061,8 @@ function desenharPainel() {
     'Última liberação há ' + duracao(d.ultima_lib_ha_s) + ' (' + d.origem + ') · ' + d.liberacoes + ' desde que o ESP32 ligou' :
     'Nenhuma liberação desde que o ESP32 ligou';
   if (document.activeElement !== $('auto')) $('auto').checked = d.auto;
+  desenharNinho();
+  desenharComedouro(nivel);
 
   // Conexão
   const ap = d.interface === 'AP';
@@ -1161,6 +1188,132 @@ function grafico(el, pts, o) {
   s += '<text class="g-eixo" x="' + m.l + '" y="' + (H - 6) + '">' + o.rotX(x0) + '</text>' +
        '<text class="g-eixo" x="' + (W - m.r) + '" y="' + (H - 6) + '" text-anchor="end">' + o.rotFim(x1, ult) + '</text>';
   el.innerHTML = s + '</svg>';
+}
+
+// ---------------------------------------------------------------- ilustrações
+// Vista térmica: o ninho inteiro com UMA cor, porque há um sensor só (DHT22).
+// Verde dentro da faixa; fora dela, mistura até azul (frio) ou vermelho
+// (quente) puros a 3 °C do limite.
+const VERDE = '#3f8a5c', AZUL = '#3d6fa8', VERM = '#c4412a';
+function misturar(a, b, k) {      // k = 0 -> cor a; k = 1 -> cor b
+  const rgb = h => [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16));
+  const A = rgb(a), B = rgb(b);
+  return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * k).toString(16).padStart(2, '0')).join('');
+}
+function corTermica(t, tmin, tmax) {
+  if (t < tmin) return misturar(VERDE, AZUL, Math.min(1, (tmin - t) / 3));
+  if (t > tmax) return misturar(VERDE, VERM, Math.min(1, (t - tmax) / 3));
+  return VERDE;
+}
+let termica = false;
+function vista(t) {
+  termica = t;
+  $('vNormal').setAttribute('aria-pressed', !t);
+  $('vTermica').setAttribute('aria-pressed', t);
+  desenharNinho();
+}
+
+function desenharNinho() {
+  const d = dados;
+  if (!d) return;
+  const t = d.temp, semT = t == null;
+  const term = termica && !semT;              // sem leitura não há cor para pintar
+  $('vTermica').disabled = semT;
+  $('semTermica').hidden = !semT;
+  const cor = semT ? '' : corTermica(t, d.temp_min, d.temp_max);
+  // Cor de cada parte: a ilustração na vista normal; na térmica, tudo da cor da temperatura
+  const c = term ? { borda: cor, oco: cor, penas: cor, asa: cor, crista: cor, bochecha: cor, bico: cor, corpo: cor, traco: '#fff', brilho: '#fff' }
+    : { borda: '#a87a4f', oco: '#6e4b30', penas: '#f2dc9b', asa: '#e3c47a', crista: '#d9b65e', bochecha: '#f0a46a', bico: '#d9a58e', corpo: '#c08f5f', traco: 'none', brilho: '#d6ab7d' };
+  const tr = ' stroke="' + c.traco + '" stroke-width="2"';
+  const sens = semT ? 'var(--alerta-txt)' : 'var(--suave)';
+  let s = '<svg class="g" viewBox="0 0 400 214" width="100%" role="img" aria-label="Ninho com o filhote' +
+    (semT ? ', temperatura sem leitura' : ', ' + fmt(t, 1) + ' graus') + '">' +
+    '<g transform="translate(' + (term ? -12 : 30) + ',0)">' +
+    '<rect x="76" y="174" width="188" height="10" rx="4" style="fill:var(--linha)"/>' +
+    '<rect x="92" y="184" width="16" height="8" rx="2" fill="#d8ccbf"/><rect x="232" y="184" width="16" height="8" rx="2" fill="#d8ccbf"/>' +
+    '<text class="il-t" x="170" y="208" text-anchor="middle">balança (HX711)</text>' +
+    '<ellipse cx="170" cy="112" rx="114" ry="24" fill="' + c.borda + '"' + tr + '/>' +
+    '<ellipse cx="170" cy="110" rx="96" ry="16" fill="' + c.oco + '"' + tr + '/>' +
+    '<ellipse cx="162" cy="102" rx="44" ry="30" fill="' + c.penas + '"' + tr + '/>' +
+    '<path d="M138 94C148 80 178 82 186 102C170 110 150 110 138 94Z" fill="' + c.asa + '"' + tr + '/>' +
+    '<path d="M196 52C190 38 180 32 170 32M203 50C201 36 195 28 186 24" fill="none" stroke="' + c.crista + '" stroke-width="4" stroke-linecap="round"/>' +
+    '<circle cx="202" cy="72" r="22" fill="' + c.penas + '"' + tr + '/>' +
+    '<circle cx="211" cy="78" r="6" fill="' + c.bochecha + '"/><circle cx="209" cy="66" r="3.2" fill="#2b2420"/>' +
+    '<path d="M222 69C233 71 233 81 222 83Z" fill="' + c.bico + '"' + tr + '/>' +
+    '<path d="M56 112A114 24 0 0 0 284 112C278 170 62 170 56 112Z" fill="' + c.corpo + '"' + tr + '/>';
+  if (!term) s += '<path d="M66 120C110 138 230 140 276 120M72 132C120 150 210 152 266 132M88 148C140 160 200 160 252 146" fill="none" stroke="#8a6240" stroke-width="2.5" stroke-linecap="round"/>';
+  s += '<path d="M56 112A114 24 0 0 0 284 112" fill="none" stroke="' + c.brilho + '" stroke-width="3"/>' +
+    // o DHT22 preso na borda do ninho: a temperatura é medida só neste ponto
+    '<path d="M62 104L36 62H14" style="fill:none;stroke:' + sens + ';stroke-width:1.2"/>' +
+    '<rect x="56" y="98" width="15" height="19" rx="2.5" style="fill:#fff;stroke:' + sens + ';stroke-width:1.8"/>' +
+    '<path d="M59 103H68M59 107H68M59 111H68" stroke="#a89c93"/>' +
+    '<text x="14" y="56" font-size="11" font-weight="600" style="fill:' + sens + '">' + (semT ? 'DHT22 · sem leitura' : 'sensor DHT22') + '</text>';
+  // Etiqueta do peso só na vista normal: na térmica ela ficaria embaixo da
+  // seta da régua (o peso continua nos números logo abaixo do desenho)
+  if (!term && !d.balanca_ok)
+    s += '<rect x="250" y="26" width="92" height="30" rx="9" stroke-dasharray="4 3" style="fill:var(--cartao);stroke:var(--alerta);stroke-width:1.5"/>' +
+         '<text x="296" y="45" text-anchor="middle" font-size="11" font-weight="600" style="fill:var(--alerta-txt)">balança sem leitura</text>';
+  else if (!term && d.peso >= 5)
+    s += '<path d="M224 62L262 46" style="stroke:var(--suave)"/><rect x="262" y="22" width="70" height="42" rx="9" style="fill:var(--cartao);stroke:var(--linha);stroke-width:1.5"/>' +
+         '<text x="297" y="45" text-anchor="middle" font-size="18" font-weight="700" style="fill:var(--texto)">' + fmt(d.peso, 1) + ' g</text>' +
+         '<text class="il-t" x="297" y="57" text-anchor="middle">na balança</text>';
+  s += '</g>';
+  if (term) {
+    // Régua de 22 a 40 °C com a faixa ideal marcada e a seta na temperatura atual
+    const y = v => 190 - (Math.max(22, Math.min(40, v)) - 22) / 18 * 170;
+    const o = v => ((y(v) - 20) / 170).toFixed(3);   // posição na régua, de 0 (topo) a 1
+    const yMax = y(d.temp_max), yMin = y(d.temp_min), yv = y(t);
+    s += '<defs><linearGradient id="escala" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="' + VERM + '"/><stop offset="' + o(d.temp_max + 3) + '" stop-color="' + VERM + '"/>' +
+      '<stop offset="' + o(d.temp_max) + '" stop-color="' + VERDE + '"/><stop offset="' + o(d.temp_min) + '" stop-color="' + VERDE + '"/>' +
+      '<stop offset="' + o(d.temp_min - 3) + '" stop-color="' + AZUL + '"/><stop offset="1" stop-color="' + AZUL + '"/></linearGradient></defs>' +
+      '<text class="il-t" x="359" y="12" text-anchor="middle">°C</text>' +
+      '<rect x="352" y="20" width="14" height="170" rx="7" fill="url(#escala)"/>' +
+      '<path d="M368 ' + yMax + 'H372V' + yMin + 'H368" style="fill:none;stroke:var(--texto)"/>' +
+      '<text x="376" y="' + (yMax + 4) + '" font-size="11" style="fill:var(--texto)">' + fmt(d.temp_max, 0) + '</text>' +
+      '<text x="376" y="' + (yMin + 4) + '" font-size="11" style="fill:var(--texto)">' + fmt(d.temp_min, 0) + '</text>' +
+      '<path d="M338 ' + (yv - 6) + 'L349 ' + yv + 'L338 ' + (yv + 6) + 'Z" style="fill:var(--texto)"/>' +
+      '<text x="334" y="' + (yv + 4) + '" text-anchor="end" font-size="13" font-weight="700" style="fill:var(--texto)">' + fmt(t, 1) + '</text>';
+  }
+  $('ninhoSvg').innerHTML = s + '</svg>';
+  $('legenda').hidden = !term;
+  $('corLeg').style.background = cor;
+}
+
+// Comedouro: o nível desenhado é o do PRATO, que é onde o HC-SR04 mede.
+// O reservatório aparece, mas sem nível, porque nenhum sensor mede quanto
+// tem nele.
+function desenharComedouro(nivel) {
+  const d = dados, sem = d.dist == null;
+  const h = Math.round((nivel || 0) * 40);   // o prato tem 40 de altura útil no desenho
+  const yS = 214 - h;                         // superfície da comida
+  let s = '<svg class="g" viewBox="0 0 220 240" width="100%" role="img" aria-label="Comedouro: ' +
+    (sem ? 'sensor de distância sem leitura' : Math.round(nivel * 100) + '% de comida no prato') + ', comporta ' + (d.aberta ? 'aberta' : 'fechada') + '">' +
+    '<defs><clipPath id="prato"><path d="M40 170H180L168 214H52Z"/></clipPath>' +
+    '<pattern id="sementes" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.3" fill="#b9832f"/><circle cx="6" cy="6" r="1.3" fill="#b9832f"/></pattern></defs>' +
+    '<rect x="60" y="6" width="80" height="64" rx="8" class="il-c" stroke-dasharray="4 3"/>' +
+    '<text class="il-t" x="100" y="34" text-anchor="middle" style="font-size:10px">reservatório</text>' +
+    '<text class="il-t" x="100" y="48" text-anchor="middle" style="font-size:9px">nível não medido</text>' +
+    '<path d="M64 70L94 90H106L136 70Z" class="il-c"/><rect x="94" y="90" width="12" height="10" class="il-c"/>' +
+    // servo (SG90) e a comporta, que gira 70° quando abre
+    '<rect x="62" y="98" width="22" height="14" rx="2" fill="#3a312b"/><circle cx="86" cy="105" r="3" style="fill:var(--suave)"/>' +
+    '<rect x="86" y="101" width="26" height="4" rx="1.5" style="fill:var(--botao)" transform="rotate(' + (d.aberta ? 70 : 0) + ' 86 105)"/>';
+  if (d.aberta) s += '<g fill="#d6a24a"><circle cx="100" cy="120" r="2"/><circle cx="97" cy="132" r="2"/><circle cx="103" cy="144" r="2"/></g>';
+  if (h > 0) s += '<g clip-path="url(#prato)"><rect x="40" y="' + yS + '" width="140" height="' + h + '" fill="#d6a24a"/>' +
+    '<rect x="40" y="' + yS + '" width="140" height="' + h + '" fill="url(#sementes)"/></g>';
+  s += '<path d="M40 170H180L168 214H52Z" style="fill:none;stroke:var(--suave);stroke-width:1.5"/>' +
+    '<path d="M182 174H188M182 214H188" style="stroke:var(--suave)"/>' +
+    '<text class="il-t" x="191" y="177">cheio</text>' +
+    '<text x="191" y="217" font-size="11"' + (d.vazio ? ' font-weight="700" style="fill:var(--alerta-txt)"' : ' class="il-t"') + '>vazio</text>' +
+    // HC-SR04 em cima do prato, medindo a distância até a comida
+    '<text class="il-t" x="150" y="127" text-anchor="middle" font-size="9">HC-SR04</text>' +
+    '<rect x="128" y="132" width="44" height="14" rx="3" style="fill:var(--frio)"/>' +
+    '<circle cx="139" cy="139" r="5" fill="#dfe5ea"/><circle cx="161" cy="139" r="5" fill="#dfe5ea"/>';
+  if (sem) s += '<text x="150" y="162" text-anchor="middle" font-size="11" font-weight="600" style="fill:var(--alerta-txt)">sem leitura</text>';
+  else s += '<path d="M150 147V' + (yS - 1) + '" stroke-width="1.5" stroke-dasharray="3 3" style="stroke:var(--frio)"/>' +
+    '<path d="M146 ' + (yS - 6) + 'L150 ' + (yS - 1) + 'L154 ' + (yS - 6) + '" stroke-width="1.5" style="fill:none;stroke:var(--frio)"/>' +
+    '<text x="145" y="' + Math.round((147 + yS) / 2 + 4) + '" text-anchor="end" font-size="11" font-weight="600" style="fill:var(--frio-txt)">' + fmt(d.dist, 1) + ' cm</text>';
+  $('comSvg').innerHTML = s + '</svg>';
 }
 
 function desenharGraficos() {
