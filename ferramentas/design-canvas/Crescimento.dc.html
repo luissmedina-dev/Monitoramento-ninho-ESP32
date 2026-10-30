@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Gráfico de crescimento (componente)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<section style="box-sizing: border-box; width: 100%; background: {{c.cartao}}; border: 1px solid {{c.linha}}; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px; color: {{c.texto}}; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px">
+<h2 style="margin: 0; font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: {{c.suave}}">Crescimento do filhote</h2>
+<span style="font-size: 13px; font-weight: 650; font-variant-numeric: tabular-nums">{{resumo}}</span>
+</div>
+
+<sc-if value="{{seloAbaixo}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; background: {{c.alertaBg}}">
+<span style="width: 10px; height: 10px; margin-top: 4px; border-radius: 50%; background: {{c.alerta}}; flex: none"></span>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 14px; font-weight: 700; color: {{c.alertaTxt}}">{{abaixo.titulo}}</span>
+<span style="font-size: 12px; color: {{c.alertaTxt}}">{{abaixo.sub}}</span>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{seloAcima}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="display: flex; gap: 10px; align-items: center; padding: 8px 12px; border-radius: 10px; background: {{c.neutroBg}}; font-size: 13px">
+<span style="width: 10px; height: 10px; border-radius: 50%; border: 2px solid {{c.texto}}; box-sizing: border-box; flex: none"></span>
+<span><b>{{acimaN}} pesagens acima da faixa de referência.</b> Não indica problema por si só.</span>
+</div>
+</sc-if>
+
+<div style="position: relative">
+<svg viewBox="{{vb}}" style="width: 100%; height: auto; display: block" role="img" aria-label="{{aria}}">
+<path d="{{grid}}" stroke="{{c.linha}}" stroke-width="1"></path>
+<text x="{{yl.x}}" y="{{yl.y0}}" text-anchor="end" font-size="10" fill="{{c.suave}}">0</text>
+<text x="{{yl.x}}" y="{{yl.y30}}" text-anchor="end" font-size="10" fill="{{c.suave}}">30</text>
+<text x="{{yl.x}}" y="{{yl.y60}}" text-anchor="end" font-size="10" fill="{{c.suave}}">60</text>
+<text x="{{yl.x}}" y="{{yl.y90}}" text-anchor="end" font-size="10" fill="{{c.suave}}">90</text>
+<text x="{{yl.x}}" y="{{yl.y120}}" text-anchor="end" font-size="10" fill="{{c.suave}}">120 g</text>
+<path d="{{faixa}}" fill="{{c.ok}}" opacity="{{c.faixaOp}}"></path>
+<g opacity="{{notaOp}}">
+<path d="{{nota.chave}}" fill="none" stroke="{{c.suave}}" stroke-width="1"></path>
+<text x="{{nota.x}}" y="{{nota.y1}}" text-anchor="middle" font-size="10" font-style="italic" fill="{{c.suave}}">{{nota.l1}}</text>
+<text x="{{nota.x}}" y="{{nota.y2}}" text-anchor="middle" font-size="10" font-style="italic" fill="{{c.suave}}">{{nota.l2}}</text>
+</g>
+<text x="{{xl.x0}}" y="{{xl.y}}" text-anchor="middle" font-size="10" fill="{{c.suave}}">{{xl.t0}}</text>
+<text x="{{xl.x1}}" y="{{xl.y}}" text-anchor="middle" font-size="10" fill="{{c.suave}}">{{xl.t1}}</text>
+<text x="{{xl.x2}}" y="{{xl.y}}" text-anchor="middle" font-size="10" fill="{{c.suave}}">{{xl.t2}}</text>
+<text x="{{xl.x3}}" y="{{xl.y}}" text-anchor="middle" font-size="10" fill="{{c.suave}}">{{xl.t3}}</text>
+<text x="{{xl.x4}}" y="{{xl.y}}" text-anchor="middle" font-size="10" fill="{{c.suave}}">{{xl.t4}}</text>
+<text x="{{xl.x5}}" y="{{xl.y}}" text-anchor="middle" font-size="10" fill="{{c.suave}}">{{xl.t5}}</text>
+<text x="{{xl.x6}}" y="{{xl.y}}" text-anchor="middle" font-size="10" fill="{{c.suave}}">{{xl.t6}}</text>
+<text x="{{xl.x7}}" y="{{xl.y}}" text-anchor="middle" font-size="10" fill="{{c.suave}}">{{xl.t7}}</text>
+<text x="{{xl.x8}}" y="{{xl.y}}" text-anchor="middle" font-size="10" fill="{{c.suave}}">{{xl.t8}}</text>
+<path d="{{tip.guia}}" stroke="{{c.suave}}" stroke-width="1" stroke-dasharray="3 3" opacity="{{tip.op}}"></path>
+<path d="{{linha}}" fill="none" stroke="{{c.marca}}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+<path d="{{pontos.ok}}" fill="{{c.marca}}" stroke="{{c.cartao}}" stroke-width="1.5"></path>
+<path d="{{pontos.acima}}" fill="{{c.cartao}}" stroke="{{c.texto}}" stroke-width="2"></path>
+<path d="{{pontos.abaixoAnel}}" fill="{{c.alerta}}" opacity="0.22"></path>
+<path d="{{pontos.abaixo}}" fill="{{c.alerta}}" stroke="{{c.cartao}}" stroke-width="1.5"></path>
+<g opacity="{{tip.op}}">
+<circle cx="{{tip.px}}" cy="{{tip.py}}" r="7" fill="none" stroke="{{c.marca}}" stroke-width="2"></circle>
+<rect x="{{tip.bx}}" y="{{tip.by}}" width="{{tip.w}}" height="62" rx="8" fill="{{c.texto}}"></rect>
+<text x="{{tip.tx}}" y="{{tip.l1}}" font-size="11" fill="{{c.cartao}}" opacity="0.8">{{tip.t1}}</text>
+<text x="{{tip.tx}}" y="{{tip.l2}}" font-size="15" font-weight="700" fill="{{c.cartao}}">{{tip.t2}}</text>
+<text x="{{tip.tx}}" y="{{tip.l3}}" font-size="11" fill="{{c.cartao}}" opacity="0.8">{{tip.t3}}</text>
+</g>
+</svg>
+<sc-if value="{{vazio}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 12%; right: 12%; top: 22%; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 12px; border-radius: 12px; background: {{c.cartao}}; border: 1px solid {{c.linha}}; text-align: center">
+<span style="font-size: 14px; font-weight: 700">Nenhuma pesagem ainda</span>
+<span style="font-size: 12px; color: {{c.suave}}">Quando o filhote for pesado na balança, o primeiro ponto aparece aqui.</span>
+</div>
+</sc-if>
+</div>
+
+<span style="font-size: 12px; color: {{c.suave}}">{{eixoX}}</span>
+
+<div style="display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px">
+<span style="display: flex; align-items: center; gap: 6px"><svg width="22" height="10" aria-hidden="true"><path d="M1 5 H21" stroke="{{c.marca}}" stroke-width="2.5"></path><circle cx="11" cy="5" r="3.5" fill="{{c.marca}}"></circle></svg>Peso do filhote</span>
+<sc-if value="{{temFaixa}}" hint-placeholder-val="{{ true }}">
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 22px; height: 10px; border-radius: 2px; background: {{c.ok}}; opacity: {{c.faixaLegOp}}"></span>Faixa de referência (Ritchie et al.)</span>
+</sc-if>
+<sc-if value="{{temAbaixo}}" hint-placeholder-val="{{ false }}">
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 50%; background: {{c.alerta}}"></span>Abaixo da faixa</span>
+</sc-if>
+<sc-if value="{{temAcima}}" hint-placeholder-val="{{ false }}">
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 50%; border: 2px solid {{c.texto}}; box-sizing: border-box"></span>Acima da faixa</span>
+</sc-if>
+</div>
+
+<sc-if value="{{semEclosao}}" hint-placeholder-val="{{ false }}">
+<form style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; padding: 12px; border-radius: 12px; background: {{c.campoBg}}">
+<p style="margin: 0; flex: 1 1 100%; font-size: 13px; color: {{c.texto}}">Informe a data de eclosão para ver a idade do filhote e comparar com a faixa de referência.</p>
+<label style="display: flex; flex-direction: column; gap: 4px; flex: 1 1 150px; font-size: 12px; font-weight: 600; color: {{c.suave}}">Data de eclosão
+<input type="date" style="min-height: 44px; box-sizing: border-box; padding: 0 10px; border: 1px solid {{c.linha}}; border-radius: 10px; background: {{c.cartao}}; color: {{c.texto}}; font: inherit; font-size: 14px">
+</label>
+<button type="button" style="min-height: 44px; padding: 0 18px; border: 0; border-radius: 10px; background: {{c.botao}}; color: #ffffff; font: inherit; font-size: 14px; font-weight: 700">Salvar</button>
+</form>
+</sc-if>
+
+<sc-if value="{{temFaixa}}" hint-placeholder-val="{{ true }}">
+<span style="font-size: 11px; color: {{c.suave}}">Faixa: Ritchie, Harrison e Harrison, <i>Avian Medicine</i> (via Cockatiel Cottage), interpolada entre os pontos médios de cada intervalo.</span>
+</sc-if>
+<sc-if value="{{temSemData}}" hint-placeholder-val="{{ false }}">
+<span style="font-size: 11px; color: {{c.suave}}">1 pesagem sem data (epoch 0) não aparece no gráfico.</span>
+</sc-if>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"modo":{"editor":"enum","options":["normal","abaixo","acima","semEclosao","vazio","tooltip"],"default":"normal"},"desktop":{"editor":"boolean","default":false},"escuro":{"editor":"boolean","default":false},"$preview":{"width":360,"height":500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const modo = this.props.modo ?? 'normal';
+    const desk = this.props.desktop ?? false;
+    const dark = this.props.escuro ?? false;
+    const c = dark ? {
+      cartao: '#26201c', texto: '#f1e9e2', suave: '#a89c93', linha: '#3a312b', marca: '#e0874f', ok: '#7fc79a',
+      alerta: '#f08a72', alertaTxt: '#f08a72', alertaBg: '#3a2620', neutroBg: '#322a25', campoBg: '#1b1714', botao: '#c4622d',
+      faixaOp: 0.13, faixaLegOp: 0.35
+    } : {
+      cartao: '#ffffff', texto: '#2b2420', suave: '#7a6e66', linha: '#e9e0d6', marca: '#c4622d', ok: '#3f8a5c',
+      alerta: '#c4412a', alertaTxt: '#9e321f', alertaBg: '#fbe9e5', neutroBg: '#f3eee8', campoBg: '#f6f1ea', botao: '#c4622d',
+      faixaOp: 0.13, faixaLegOp: 0.3
+    };
+
+    // Faixa de referência: pontos médios de cada intervalo da tabela (dias, g)
+    const mx = [4.5, 10.5, 17.5, 24.5, 31.5, 38.5, 45.5, 52.5];
+    const mono = (xs, ys) => {
+      const n = xs.length, m = [], t = [];
+      for (let i = 0; i < n - 1; i++) m.push((ys[i + 1] - ys[i]) / (xs[i + 1] - xs[i]));
+      t[0] = m[0]; t[n - 1] = m[n - 2];
+      for (let i = 1; i < n - 1; i++) t[i] = m[i - 1] * m[i] <= 0 ? 0 : (m[i - 1] + m[i]) / 2;
+      for (let i = 0; i < n - 1; i++) {
+        if (m[i] === 0) { t[i] = t[i + 1] = 0; continue; }
+        const a = t[i] / m[i], b = t[i + 1] / m[i], s = a * a + b * b;
+        if (s > 9) { const k = 3 / Math.sqrt(s); t[i] = k * a * m[i]; t[i + 1] = k * b * m[i]; }
+      }
+      return (x) => {
+        if (x < xs[0]) return null;
+        if (x >= xs[n - 1]) return ys[n - 1];
+        let i = 0; while (x > xs[i + 1]) i++;
+        const h = xs[i + 1] - xs[i], u = (x - xs[i]) / h, u2 = u * u, u3 = u2 * u;
+        return (2 * u3 - 3 * u2 + 1) * ys[i] + (u3 - 2 * u2 + u) * h * t[i] + (-2 * u3 + 3 * u2) * ys[i + 1] + (u3 - u2) * h * t[i + 1];
+      };
+    };
+    const fMin = mono(mx, [5, 12, 45, 72, 80, 80, 80, 90]);
+    const fMax = mono(mx, [12, 45, 72, 108, 120, 90, 95, 110]);
+
+    // Pesagens de exemplo: [idade em dias, gramas]; eclosão em 30/09/2026
+    let pts = [[1, 5], [3, 6], [5, 9], [7, 13], [9, 19], [11, 26], [13, 34], [15, 42], [17, 50], [19, 58], [21, 67], [23, 75], [25, 82], [27, 88], [30, 94]];
+    if (modo === 'abaixo') pts = pts.map(([d, g]) => [d, d === 27 ? 74 : d === 30 ? 76 : g]);
+    if (modo === 'acima') pts = pts.map(([d, g]) => [d, ({ 19: 82, 21: 94, 23: 104, 25: 108, 27: 112, 30: 116 })[d] ?? g]);
+    if (modo === 'vazio') pts = [];
+    const semEclosao = modo === 'semEclosao';
+    const temFaixa = !semEclosao;
+    const data = (d) => { const dt = new Date(2026, 8, 30 + d); return String(dt.getDate()).padStart(2, '0') + '/' + String(dt.getMonth() + 1).padStart(2, '0'); };
+
+    const W = desk ? 640 : 340, H = desk ? 270 : 230;
+    const pl = 34, pr = 10, pt = 12, pb = 22;
+    const x0 = semEclosao ? 0 : 0, x1 = semEclosao ? 31 : 56;
+    const X = (d) => pl + ((d - x0) / (x1 - x0)) * (W - pl - pr);
+    const Y = (g) => pt + (1 - g / 130) * (H - pt - pb);
+    const f1 = (v) => v.toFixed(1);
+
+    const grid = [0, 30, 60, 90, 120].map((g) => 'M' + pl + ' ' + f1(Y(g)) + ' H' + (W - pr)).join(' ');
+    const yl = { x: pl - 6, y0: f1(Y(0) + 4), y30: f1(Y(30) + 4), y60: f1(Y(60) + 4), y90: f1(Y(90) + 4), y120: f1(Y(120) + 4) };
+
+    const xl = { y: H - 6 };
+    for (let i = 0; i < 9; i++) {
+      if (!semEclosao) { xl['x' + i] = f1(X(i * 7)); xl['t' + i] = String(i * 7); }
+      else if (i < 5) { const d = 1 + i * 7; xl['x' + i] = f1(X(d)); xl['t' + i] = data(d); }
+      else { xl['x' + i] = 0; xl['t' + i] = ''; }
+    }
+
+    let faixa = '';
+    if (temFaixa) {
+      const top = [], bot = [];
+      for (let d = 4.5; d <= x1 + 0.001; d += 0.5) { top.push(f1(X(d)) + ' ' + f1(Y(fMax(d)))); bot.push(f1(X(d)) + ' ' + f1(Y(fMin(d)))); }
+      faixa = 'M' + top.join(' L') + ' L' + bot.reverse().join(' L') + ' Z';
+    }
+
+    const nx0 = X(28), nx1 = X(49), ny = Y(73);
+    const nota = {
+      chave: 'M' + f1(nx0) + ' ' + f1(ny - 4) + ' V' + f1(ny) + ' H' + f1(nx1) + ' V' + f1(ny - 4),
+      x: f1((nx0 + nx1) / 2), y1: f1(ny + 13), y2: f1(ny + 26),
+      l1: desk ? 'perda normal ao começar a voar' : 'perda normal ao', l2: desk ? '' : 'começar a voar'
+    };
+
+    const cls = (d, g) => {
+      if (semEclosao) return 'ok';
+      const lo = fMin(d), hi = fMax(d);
+      if (lo === null) return 'ok';
+      return g < lo ? 'abaixo' : g > hi ? 'acima' : 'ok';
+    };
+    const circ = (x, y, r) => 'M' + f1(x - r) + ' ' + f1(y) + ' a' + r + ' ' + r + ' 0 1 0 ' + (2 * r) + ' 0 a' + r + ' ' + r + ' 0 1 0 ' + (-2 * r) + ' 0 ';
+    const pontos = { ok: '', acima: '', abaixo: '', abaixoAnel: '' };
+    let linha = '';
+    let nAbaixo = 0, nAcima = 0;
+    pts.forEach(([d, g], i) => {
+      const x = X(d), y = Y(g), k = cls(d, g);
+      linha += (i ? 'L' : 'M') + f1(x) + ' ' + f1(y) + ' ';
+      if (k === 'ok') pontos.ok += circ(x, y, 3.5);
+      if (k === 'acima') { pontos.acima += circ(x, y, 4); nAcima++; }
+      if (k === 'abaixo') { pontos.abaixo += circ(x, y, 5); pontos.abaixoAnel += circ(x, y, 9); nAbaixo++; }
+    });
+
+    const ult = pts[pts.length - 1];
+    const ultAbaixo = ult && cls(ult[0], ult[1]) === 'abaixo';
+    const abaixo = ultAbaixo ? {
+      titulo: 'Abaixo do esperado para ' + ult[0] + ' dias',
+      sub: ult[1] + ' g na última pesagem; a referência nessa idade vai de ' + Math.round(fMin(ult[0])) + ' a ' + Math.round(fMax(ult[0])) + ' g.'
+    } : { titulo: '', sub: '' };
+
+    const tipOn = modo === 'tooltip';
+    const td = 21, tg = 67, tw = desk ? 168 : 150;
+    const tpx = X(td), tpy = Y(tg);
+    const tbx = Math.max(pl, Math.min(W - pr - tw, tpx - tw / 2));
+    let tby = tpy - 62 - 14; if (tby < pt) tby = tpy + 14;
+    const tip = {
+      op: tipOn ? 1 : 0, px: f1(tpx), py: f1(tpy), bx: f1(tbx), by: f1(tby), w: tw, tx: f1(tbx + 10),
+      l1: f1(tby + 17), l2: f1(tby + 36), l3: f1(tby + 53),
+      t1: data(td) + '/2026 · ' + td + ' dias', t2: tg + ' g · dentro da faixa',
+      t3: 'esperado: ' + Math.round(fMin(td)) + ' a ' + Math.round(fMax(td)) + ' g',
+      guia: 'M' + f1(tpx) + ' ' + pt + ' V' + (H - pb)
+    };
+
+    return {
+      c, vb: '0 0 ' + W + ' ' + H, grid, yl, xl, faixa, nota, linha, pontos, tip,
+      notaOp: temFaixa ? 1 : 0,
+      resumo: !ult ? '' : semEclosao ? 'última: ' + data(ult[0]) + ' · ' + ult[1] + ' g' : ult[0] + ' dias · ' + ult[1] + ' g',
+      seloAbaixo: ultAbaixo, abaixo,
+      seloAcima: nAcima > 0, acimaN: nAcima,
+      temAbaixo: nAbaixo > 0, temAcima: nAcima > 0,
+      temFaixa, semEclosao, vazio: modo === 'vazio',
+      temSemData: modo === 'normal',
+      eixoX: semEclosao ? 'Data da pesagem (sem data de eclosão não dá para calcular a idade)' : 'Idade em dias desde a eclosão · marcações por semana',
+      aria: pts.length ? 'Gráfico de peso do filhote com ' + pts.length + ' pesagens' + (temFaixa ? ' e faixa de referência por idade' : '') : 'Gráfico de peso vazio'
+    };
+  }
+}
+</script>
+</body>
+</html>

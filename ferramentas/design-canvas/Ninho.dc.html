@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Ninho (componente)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 100%; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #2b2420">
+<svg viewBox="0 0 400 214" style="width: 100%; height: auto; display: block" role="img" aria-label="{{aria}}">
+<defs>
+<linearGradient id="escala-temp" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#c4412a"></stop>
+<stop offset="{{g.o1}}" stop-color="#c4412a"></stop>
+<stop offset="{{g.o2}}" stop-color="#3f8a5c"></stop>
+<stop offset="{{g.o3}}" stop-color="#3f8a5c"></stop>
+<stop offset="{{g.o4}}" stop-color="#3d6fa8"></stop>
+<stop offset="1" stop-color="#3d6fa8"></stop>
+</linearGradient>
+</defs>
+<g transform="{{shift}}">
+<rect x="76" y="174" width="188" height="10" rx="4" fill="#e9e0d6"></rect>
+<rect x="92" y="184" width="16" height="8" rx="2" fill="#d8ccbf"></rect>
+<rect x="232" y="184" width="16" height="8" rx="2" fill="#d8ccbf"></rect>
+<text x="170" y="208" text-anchor="middle" font-size="11" fill="#7a6e66">balança (HX711)</text>
+<ellipse cx="170" cy="112" rx="114" ry="24" fill="{{f.rim}}" stroke="{{f.stroke}}" stroke-width="2"></ellipse>
+<ellipse cx="170" cy="110" rx="96" ry="16" fill="{{f.hollow}}" stroke="{{f.stroke}}" stroke-width="2"></ellipse>
+<ellipse cx="162" cy="102" rx="44" ry="30" fill="{{f.down}}" stroke="{{f.stroke}}" stroke-width="2"></ellipse>
+<path d="M138 94 C148 80 178 82 186 102 C170 110 150 110 138 94 Z" fill="{{f.wing}}" stroke="{{f.stroke}}" stroke-width="1.5"></path>
+<path d="M196 52 C190 38 180 32 170 32" fill="none" stroke="{{f.crest}}" stroke-width="4" stroke-linecap="round"></path>
+<path d="M203 50 C201 36 195 28 186 24" fill="none" stroke="{{f.crest}}" stroke-width="4" stroke-linecap="round"></path>
+<circle cx="202" cy="72" r="22" fill="{{f.down}}" stroke="{{f.stroke}}" stroke-width="2"></circle>
+<circle cx="211" cy="78" r="6" fill="{{f.cheek}}"></circle>
+<circle cx="209" cy="66" r="3.2" fill="#2b2420"></circle>
+<path d="M222 69 C233 71 233 81 222 83 Z" fill="{{f.beak}}" stroke="{{f.stroke}}" stroke-width="1.5"></path>
+<path d="M56 112 A114 24 0 0 0 284 112 C278 170 62 170 56 112 Z" fill="{{f.body}}" stroke="{{f.stroke}}" stroke-width="2"></path>
+<g opacity="{{f.twigOp}}" fill="none" stroke="#8a6240" stroke-width="2.5" stroke-linecap="round">
+<path d="M66 120 C110 138 230 140 276 120"></path>
+<path d="M72 132 C120 150 210 152 266 132"></path>
+<path d="M88 148 C140 160 200 160 252 146"></path>
+</g>
+<path d="M56 112 A114 24 0 0 0 284 112" fill="none" stroke="{{f.rimHi}}" stroke-width="3"></path>
+<path d="M62 104 L36 62 L14 62" fill="none" stroke="{{sens.cor}}" stroke-width="1.2"></path>
+<rect x="56" y="98" width="15" height="19" rx="2.5" fill="#ffffff" stroke="{{sens.cor}}" stroke-width="1.8"></rect>
+<path d="M59 103 H68 M59 107 H68 M59 111 H68" stroke="#a89c93" stroke-width="1"></path>
+<text x="14" y="56" font-size="11" font-weight="600" fill="{{sens.cor}}">{{sens.txt}}</text>
+<g opacity="{{pesoOp}}">
+<path d="M224 62 L262 46" stroke="#7a6e66" stroke-width="1.2"></path>
+<rect x="262" y="22" width="70" height="42" rx="9" fill="#ffffff" stroke="#e9e0d6" stroke-width="1.5"></rect>
+<text x="297" y="45" text-anchor="middle" font-size="18" font-weight="700" fill="#2b2420">{{pesoTxt}}</text>
+<text x="297" y="57" text-anchor="middle" font-size="10" fill="#7a6e66">na balança</text>
+</g>
+<g opacity="{{semPesoOp}}">
+<rect x="250" y="26" width="92" height="30" rx="9" fill="#ffffff" stroke="#c4412a" stroke-width="1.5" stroke-dasharray="4 3"></rect>
+<text x="296" y="45" text-anchor="middle" font-size="11" font-weight="600" fill="#9e321f">balança sem leitura</text>
+</g>
+</g>
+<g opacity="{{rulerOp}}">
+<text x="359" y="12" text-anchor="middle" font-size="10" fill="#7a6e66">°C</text>
+<rect x="352" y="20" width="14" height="170" rx="7" fill="url(#escala-temp)"></rect>
+<path d="{{g.bracket}}" fill="none" stroke="#2b2420" stroke-width="1.2"></path>
+<text x="376" y="{{g.yMaxT}}" font-size="11" fill="#2b2420">{{g.tmaxTxt}}</text>
+<text x="376" y="{{g.yMinT}}" font-size="11" fill="#2b2420">{{g.tminTxt}}</text>
+<path d="{{g.marker}}" fill="#2b2420" opacity="{{g.markOp}}"></path>
+<text x="340" y="{{g.yValT}}" text-anchor="end" font-size="13" font-weight="700" fill="#2b2420" opacity="{{g.markOp}}">{{g.valTxt}}</text>
+</g>
+</svg>
+<sc-if value="{{termica}}" hint-placeholder-val="{{ false }}">
+<p style="margin: 6px 0 0; font-size: 12px; color: #6b5f57; display: flex; align-items: center; gap: 8px">
+<span style="width: 12px; height: 12px; border-radius: 3px; background: {{cor}}; flex: none"></span>
+Uma cor só: temperatura no ponto do sensor (DHT22). Não é mapa de calor.
+</p>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"t":{"editor":"float","default":30.4,"step":0.1},"tmin":{"editor":"float","default":28},"tmax":{"editor":"float","default":32},"peso":{"editor":"float","default":58},"termica":{"editor":"boolean","default":false},"$preview":{"width":400,"height":240}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const t = p.t === undefined ? 30.4 : p.t;
+    const tmin = p.tmin ?? 28, tmax = p.tmax ?? 32;
+    const peso = p.peso === undefined ? 58 : p.peso;
+    const termica = p.termica ?? false;
+    const VERDE = '#3f8a5c', AZUL = '#3d6fa8', VERM = '#c4412a';
+    const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+    const mix = (a, b, k) => { const A = hex(a), B = hex(b); return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * k).toString(16).padStart(2, '0')).join(''); };
+    let cor = '#a89c93';
+    if (t !== null) {
+      if (t < tmin) cor = mix(VERDE, AZUL, Math.min(1, (tmin - t) / 3));
+      else if (t > tmax) cor = mix(VERDE, VERM, Math.min(1, (t - tmax) / 3));
+      else cor = VERDE;
+    }
+    const fmt = (v) => String(Math.round(v * 10) / 10).replace('.', ',');
+    const y = (v) => 190 - (Math.max(22, Math.min(40, v)) - 22) / 18 * 170;
+    const off = (v) => ((y(v) - 20) / 170).toFixed(3);
+    const yMax = y(tmax), yMin = y(tmin), yv = t === null ? 105 : y(t);
+    const g = {
+      o1: off(tmax + 3), o2: off(tmax), o3: off(tmin), o4: off(tmin - 3),
+      bracket: 'M368 ' + yMax + ' H372 V' + yMin + ' H368',
+      yMaxT: yMax + 4, yMinT: yMin + 4,
+      tmaxTxt: fmt(tmax), tminTxt: fmt(tmin),
+      marker: 'M340 ' + (yv - 6) + ' L350 ' + yv + ' L340 ' + (yv + 6) + ' Z',
+      yValT: yv + 4 - 0, valTxt: t === null ? '' : fmt(t), markOp: t === null ? 0 : 1
+    };
+    g.marker = 'M338 ' + (yv - 6) + ' L349 ' + yv + ' L338 ' + (yv + 6) + ' Z';
+    g.yValT = yv + 4;
+    const valX = 334;
+    const f = termica ? {
+      rim: cor, hollow: cor, down: cor, wing: cor, crest: cor, cheek: cor, beak: cor, body: cor,
+      stroke: '#ffffff', rimHi: '#ffffff', twigOp: 0
+    } : {
+      rim: '#a87a4f', hollow: '#6e4b30', down: '#f2dc9b', wing: '#e3c47a', crest: '#d9b65e',
+      cheek: '#f0a46a', beak: '#d9a58e', body: '#c08f5f', stroke: 'none', rimHi: '#d6ab7d', twigOp: 1
+    };
+    const sens = t === null
+      ? { cor: '#c4412a', txt: 'DHT22 · sem leitura' }
+      : { cor: '#7a6e66', txt: 'sensor DHT22' };
+    return {
+      f, g, sens, cor, termica,
+      shift: termica ? 'translate(-12,0)' : 'translate(30,0)',
+      rulerOp: termica ? 1 : 0,
+      pesoOp: peso !== null && peso > 5 ? 1 : 0,
+      semPesoOp: peso === null ? 1 : 0,
+      pesoTxt: peso === null ? '' : fmt(peso) + ' g',
+      aria: 'Ninho com o filhote' + (t === null ? ', temperatura sem leitura' : ', ' + fmt(t) + ' graus') + (peso > 5 ? ', peso ' + fmt(peso) + ' gramas' : '')
+    };
+  }
+}
+</script>
+</body>
+</html>

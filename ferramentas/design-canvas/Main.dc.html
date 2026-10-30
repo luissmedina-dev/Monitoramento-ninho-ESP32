@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Painel do ninho · celular</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#c4622d}a:hover{color:#9a4a1f}
+</style>
+</helmet>
+<div style="width: 390px; height: 2280px; box-sizing: border-box; background: #f6f1ea; color: #2b2420; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; display: flex; flex-direction: column">
+
+<header style="padding: 16px 16px 12px; display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid #e9e0d6; background: #f6f1ea">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 18px; font-weight: 700">Ninho do filhote</span>
+<span style="font-size: 12px; color: #6b5f57; font-variant-numeric: tabular-nums">ESP32 · 192.168.0.23</span>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 999px; background: #ffffff; border: 1px solid #e9e0d6; font-size: 12px; font-weight: 650; font-variant-numeric: tabular-nums">
+<span style="width: 8px; height: 8px; border-radius: 50%; background: #3f8a5c; box-shadow: 0 0 0 4px rgba(63,138,92,0.18)"></span>
+Ao vivo · 38 ms
+</div>
+</div>
+<nav aria-label="Seções" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; background: #e9e0d6; border-radius: 12px">
+<a href="#" aria-current="page" style="min-height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 9px; background: #ffffff; color: #2b2420; text-decoration: none; font-size: 14px; font-weight: 650">Painel</a>
+<a href="Log.dc.html" style="min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 9px; color: #2b2420; text-decoration: none; font-size: 14px; font-weight: 600">Log <span style="min-width: 20px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 999px; background: #c4622d; color: #ffffff; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center">1</span></a>
+</nav>
+</header>
+
+<main style="padding: 12px 16px 24px; display: flex; flex-direction: column; gap: 12px">
+
+<section style="background: #ffffff; border: 1px solid #e9e0d6; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<h2 style="margin: 0; font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Ninho · filhote</h2>
+<div role="group" aria-label="Vista do ninho" style="display: flex; gap: 2px; padding: 3px; background: #f6f1ea; border-radius: 10px">
+<button type="button" aria-pressed="true" style="min-height: 44px; padding: 0 14px; border: 0; border-radius: 8px; background: #ffffff; color: #2b2420; font: inherit; font-size: 13px; font-weight: 650; box-shadow: 0 1px 2px rgba(43,36,32,0.12)">Normal</button>
+<button type="button" aria-pressed="false" style="min-height: 44px; padding: 0 14px; border: 0; border-radius: 8px; background: transparent; color: #6b5f57; font: inherit; font-size: 13px; font-weight: 600">Térmica</button>
+</div>
+</div>
+<dc-import name="Ninho" t="{{ninho.t}}" tmin="{{ninho.tmin}}" tmax="{{ninho.tmax}}" peso="{{ninho.peso}}" termica="{{ninho.termica}}" hint-size="100%,190px"></dc-import>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; border-top: 1px solid #e9e0d6; padding-top: 12px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Temperatura</span>
+<span style="font-size: 26px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums">30,4 <span style="font-size: 15px; font-weight: 600">°C</span></span>
+<span style="font-size: 12px; color: #7a6e66">ideal 28–32 °C</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Umidade</span>
+<span style="font-size: 26px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums">62 <span style="font-size: 15px; font-weight: 600">%</span></span>
+<span style="font-size: 12px; color: #7a6e66">relativa</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Peso</span>
+<span style="font-size: 26px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums">58 <span style="font-size: 15px; font-weight: 600">g</span></span>
+<span style="font-size: 12px; color: #7a6e66">na balança</span>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #2f7049">
+<span style="width: 8px; height: 8px; border-radius: 50%; background: #3f8a5c"></span>
+Dentro da faixa ideal
+</div>
+</section>
+
+<section style="background: #ffffff; border: 1px solid #e9e0d6; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<h2 style="margin: 0; font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Comedouro dos pais</h2>
+<span style="padding: 4px 10px; border-radius: 999px; background: #f8ebe2; color: #9a4a1f; font-size: 12px; font-weight: 650">Automático</span>
+</div>
+<div style="display: flex; gap: 14px; align-items: flex-start">
+<div style="width: 150px; flex: none">
+<dc-import name="Comedouro" nivel="{{com.nivel}}" dist="{{com.dist}}" aberta="{{com.aberta}}" hint-size="150px,180px"></dc-import>
+</div>
+<div style="display: flex; flex-direction: column; gap: 12px; min-width: 0; padding-top: 4px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Nível de ração</span>
+<span style="font-size: 26px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums">64 %</span>
+<span style="font-size: 12px; color: #7a6e66">sensor a 9,0 cm da ração</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Comporta</span>
+<span style="font-size: 16px; font-weight: 650">Fechada</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Próxima liberação</span>
+<span style="font-size: 16px; font-weight: 650; font-variant-numeric: tabular-nums">em 28 min</span>
+<span style="font-size: 12px; color: #7a6e66">permitida pelo modo automático</span>
+</div>
+</div>
+</div>
+<div style="font-size: 12px; color: #7a6e66; font-variant-numeric: tabular-nums">Última liberação há 1 h 32 min (automática) · 3 liberações desde que ligou</div>
+<button type="button" style="min-height: 48px; border: 0; border-radius: 12px; background: #c4622d; color: #ffffff; font: inherit; font-size: 15px; font-weight: 700">Liberar comida</button>
+</section>
+
+<section style="background: #ffffff; border: 1px solid #e9e0d6; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<h2 style="margin: 0; font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Conexão</h2>
+<span style="padding: 4px 10px; border-radius: 999px; background: #e6eef7; color: #2c5584; font-size: 12px; font-weight: 650">STA · no roteador</span>
+</div>
+<div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Endereço</span>
+<span style="font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 22px; font-weight: 700">192.168.0.23<span style="color: #7a6e66">:80</span></span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px">
+<svg width="26" height="20" viewBox="0 0 26 20" role="img" aria-label="Sinal: 3 de 4 barras">
+<rect x="0" y="14" width="4" height="5" rx="1" fill="#2b2420"></rect>
+<rect x="7" y="10" width="4" height="9" rx="1" fill="#2b2420"></rect>
+<rect x="14" y="6" width="4" height="13" rx="1" fill="#2b2420"></rect>
+<rect x="21" y="1" width="4" height="18" rx="1" fill="#e9e0d6"></rect>
+</svg>
+<span style="font-size: 13px; font-weight: 650; font-variant-numeric: tabular-nums">−61 dBm</span>
+</div>
+</div>
+<dl style="margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; font-variant-numeric: tabular-nums">
+<div><dt style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Rede (SSID)</dt><dd style="margin: 2px 0 0; font-size: 14px; font-weight: 600">Casa_2G</dd></div>
+<div><dt style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">MAC</dt><dd style="margin: 2px 0 0; font-size: 13px; font-weight: 600; font-family: ui-monospace, Menlo, Consolas, monospace">24:6F:28:A1:3C:7E</dd></div>
+<div><dt style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Ligado há</dt><dd style="margin: 2px 0 0; font-size: 14px; font-weight: 600">3 h 12 min</dd></div>
+<div><dt style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Reconexões</dt><dd style="margin: 2px 0 0; font-size: 14px; font-weight: 600">2</dd></div>
+</dl>
+<div style="border-top: 1px solid #e9e0d6; padding-top: 12px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Rede medida pelo navegador</span>
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 650; color: #2f7049"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3f8a5c; box-shadow: 0 0 0 4px rgba(63,138,92,0.18)"></span>ao vivo</span>
+</div>
+<svg viewBox="0 0 340 70" style="width: 100%; height: auto; display: block" role="img" aria-label="Latência das últimas 60 requisições, entre 27 e 164 ms">
+<path d="M0 {{lat.y100}} H340" stroke="#e9e0d6" stroke-width="1" stroke-dasharray="3 3"></path>
+<text x="0" y="{{lat.y100l}}" font-size="10" fill="#7a6e66">100 ms</text>
+<path d="{{lat.d}}" fill="none" stroke="#3d6fa8" stroke-width="1.8" stroke-linejoin="round"></path>
+<circle cx="{{lat.cx}}" cy="{{lat.cy}}" r="3.5" fill="#3d6fa8"></circle>
+</svg>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; font-variant-numeric: tabular-nums">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Latência</span><span style="font-size: 20px; font-weight: 700">38 ms</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Média</span><span style="font-size: 20px; font-weight: 700">43 ms</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Requisições</span><span style="font-size: 20px; font-weight: 700">5.742</span></div>
+</div>
+<span style="font-size: 12px; color: #7a6e66">GET /dados a cada 2 s · 0 sem resposta</span>
+</div>
+</section>
+
+<section style="background: #ffffff; border: 1px solid #e9e0d6; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 0; font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Temperatura · últimos 5 min</h2>
+<svg viewBox="0 0 340 130" style="width: 100%; height: auto; display: block" role="img" aria-label="Temperatura nos últimos 5 minutos, estável perto de 30 graus, dentro da faixa ideal">
+<rect x="30" y="{{tc.bandY}}" width="300" height="{{tc.bandH}}" fill="#3f8a5c" opacity="0.12"></rect>
+<path d="M30 {{tc.bandY}} H330 M30 {{tc.bandY2}} H330" stroke="#3f8a5c" stroke-width="1" stroke-dasharray="3 3" opacity="0.6"></path>
+<text x="24" y="{{tc.yHiT}}" text-anchor="end" font-size="10" fill="#7a6e66">32</text>
+<text x="24" y="{{tc.yLoT}}" text-anchor="end" font-size="10" fill="#7a6e66">28</text>
+<path d="{{tc.d}}" fill="none" stroke="#c4622d" stroke-width="2" stroke-linejoin="round"></path>
+<circle cx="{{tc.cx}}" cy="{{tc.cy}}" r="4" fill="#c4622d" stroke="#ffffff" stroke-width="2"></circle>
+<text x="30" y="126" font-size="10" fill="#7a6e66">14:27</text>
+<text x="330" y="126" text-anchor="end" font-size="10" fill="#7a6e66">agora</text>
+</svg>
+<div style="font-size: 12px; color: #7a6e66">Faixa verde = ideal (28–32 °C), vinda do ESP32</div>
+<h2 style="margin: 8px 0 0; font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Umidade · últimos 5 min</h2>
+<svg viewBox="0 0 340 110" style="width: 100%; height: auto; display: block" role="img" aria-label="Umidade nos últimos 5 minutos, perto de 62 por cento">
+<path d="M30 10 H330 M30 88 H330" stroke="#e9e0d6" stroke-width="1"></path>
+<text x="24" y="14" text-anchor="end" font-size="10" fill="#7a6e66">75</text>
+<text x="24" y="92" text-anchor="end" font-size="10" fill="#7a6e66">50</text>
+<path d="{{uc.d}}" fill="none" stroke="#3d6fa8" stroke-width="2" stroke-linejoin="round"></path>
+<circle cx="{{uc.cx}}" cy="{{uc.cy}}" r="4" fill="#3d6fa8" stroke="#ffffff" stroke-width="2"></circle>
+<text x="30" y="106" font-size="10" fill="#7a6e66">14:27</text>
+<text x="330" y="106" text-anchor="end" font-size="10" fill="#7a6e66">agora</text>
+</svg>
+</section>
+
+<section style="background: #ffffff; border: 1px solid #e9e0d6; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px">
+<h2 style="margin: 0; font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Crescimento do filhote</h2>
+<span style="font-size: 12px; color: #7a6e66">peso por dia</span>
+</div>
+<svg viewBox="0 0 340 160" style="width: 100%; height: auto; display: block" role="img" aria-label="Peso do filhote de 6 gramas em 18 de outubro a 58 gramas em 30 de outubro">
+<path d="{{gc.grid}}" stroke="#e9e0d6" stroke-width="1"></path>
+<text x="24" y="{{gc.g60}}" text-anchor="end" font-size="10" fill="#7a6e66">60 g</text>
+<text x="24" y="{{gc.g30}}" text-anchor="end" font-size="10" fill="#7a6e66">30 g</text>
+<text x="24" y="{{gc.g0}}" text-anchor="end" font-size="10" fill="#7a6e66">0</text>
+<path d="{{gc.d}}" fill="none" stroke="#c4622d" stroke-width="2" stroke-linejoin="round"></path>
+<path d="{{gc.dots}}" fill="#c4622d"></path>
+<text x="{{gc.lx0}}" y="154" text-anchor="middle" font-size="10" fill="#7a6e66">18/10</text>
+<text x="{{gc.lx1}}" y="154" text-anchor="middle" font-size="10" fill="#7a6e66">21/10</text>
+<text x="{{gc.lx2}}" y="154" text-anchor="middle" font-size="10" fill="#7a6e66">24/10</text>
+<text x="{{gc.lx3}}" y="154" text-anchor="middle" font-size="10" fill="#7a6e66">27/10</text>
+<text x="{{gc.lx4}}" y="154" text-anchor="end" font-size="10" fill="#7a6e66">hoje</text>
+<text x="{{gc.lastX}}" y="{{gc.lastLY}}" text-anchor="end" font-size="12" font-weight="700" fill="#2b2420">58 g</text>
+</svg>
+</section>
+
+<p style="margin: 4px 0 0; text-align: center; font-size: 12px; color: #6b5f57">Atualizado às 14:32:06 · boot 14</p>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":2280}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const rng = (s) => () => (s = (s * 16807) % 2147483647) / 2147483647;
+    const path = (arr, W, H, pl, pr, pt, pb, lo, hi) => {
+      const w = W - pl - pr, h = H - pt - pb;
+      let d = '', prev = false, last = null;
+      arr.forEach((a, i) => {
+        if (a === null) { prev = false; return; }
+        const x = pl + (i / (arr.length - 1)) * w;
+        const y = pt + (1 - (a - lo) / (hi - lo)) * h;
+        d += (prev ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1) + ' ';
+        prev = true; last = [x, y];
+      });
+      const yOf = (v) => pt + (1 - (v - lo) / (hi - lo)) * h;
+      return { d, cx: last[0].toFixed(1), cy: last[1].toFixed(1), yOf };
+    };
+    const r = rng(11);
+    const temp = []; let v = 30.0;
+    for (let i = 0; i < 150; i++) { v += (r() - 0.5) * 0.14 + (30.4 - v) * 0.03; temp.push(v); }
+    temp[149] = 30.4;
+    const umid = []; let u = 61.5;
+    for (let i = 0; i < 150; i++) { u += (r() - 0.5) * 0.5 + (62 - u) * 0.04; umid.push(u); }
+    umid[149] = 62;
+    const lat = [];
+    for (let i = 0; i < 60; i++) lat.push(30 + r() * 22);
+    lat[41] = 164; lat[42] = 71; lat[59] = 38;
+    const peso = [6, 8, 11, 14, 18, 22, 27, 32, 37, 42, 47, 53, 58];
+
+    const T = path(temp, 340, 130, 30, 10, 10, 22, 26, 34);
+    const tc = { d: T.d, cx: T.cx, cy: T.cy, bandY: T.yOf(32).toFixed(1), bandY2: T.yOf(28).toFixed(1), bandH: (T.yOf(28) - T.yOf(32)).toFixed(1), yHiT: (T.yOf(32) + 4).toFixed(1), yLoT: (T.yOf(28) + 4).toFixed(1) };
+    const U = path(umid, 340, 110, 30, 10, 10, 22, 50, 75);
+    const L = path(lat, 340, 70, 0, 4, 6, 4, 0, 200);
+    const G = path(peso, 340, 160, 30, 12, 14, 24, 0, 70);
+    const gx = (i) => (30 + (i / 12) * 298).toFixed(1);
+    let dots = '';
+    peso.forEach((p, i) => { const x = 30 + (i / 12) * 298, y = G.yOf(p); dots += 'M' + (x - 3).toFixed(1) + ' ' + y.toFixed(1) + ' a3 3 0 1 0 6 0 a3 3 0 1 0 -6 0 '; });
+    const gc = {
+      d: G.d, dots,
+      grid: 'M30 ' + G.yOf(60).toFixed(1) + ' H328 M30 ' + G.yOf(30).toFixed(1) + ' H328 M30 ' + G.yOf(0).toFixed(1) + ' H328',
+      g60: (G.yOf(60) + 4).toFixed(1), g30: (G.yOf(30) + 4).toFixed(1), g0: (G.yOf(0) + 4).toFixed(1),
+      lx0: gx(0), lx1: gx(3), lx2: gx(6), lx3: gx(9), lx4: gx(12),
+      lastX: (328 - 8).toFixed(1), lastLY: (G.yOf(58) + 4).toFixed(1)
+    };
+    gc.lastX = (328 - 10).toFixed(1);
+    gc.lastLY = (G.yOf(58) - 10).toFixed(1);
+    return {
+      ninho: { t: 30.4, tmin: 28, tmax: 32, peso: 58, termica: false },
+      com: { nivel: 0.64, dist: 9, aberta: false },
+      tc, uc: { d: U.d, cx: U.cx, cy: U.cy },
+      lat: { d: L.d, cx: L.cx, cy: L.cy, y100: L.yOf(100).toFixed(1), y100l: (L.yOf(100) - 4).toFixed(1) },
+      gc
+    };
+  }
+}
+</script>
+</body>
+</html>

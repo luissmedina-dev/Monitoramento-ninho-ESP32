@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Gráfico de crescimento · desktop</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1408px; height: 1840px; box-sizing: border-box; padding: 40px; background: #f6f1ea; color: #2b2420; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px; align-items: start">
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 15px; font-weight: 700">1 · Normal</span>
+<dc-import name="Crescimento" modo="normal" desktop="{{sim}}" escuro="{{nao}}" hint-size="640px,500px"></dc-import>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 15px; font-weight: 700">2 · Abaixo da faixa</span>
+<dc-import name="Crescimento" modo="abaixo" desktop="{{sim}}" escuro="{{nao}}" hint-size="640px,540px"></dc-import>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 15px; font-weight: 700">3 · Acima da faixa</span>
+<dc-import name="Crescimento" modo="acima" desktop="{{sim}}" escuro="{{nao}}" hint-size="640px,540px"></dc-import>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 15px; font-weight: 700">4 · Mouse sobre um ponto</span>
+<dc-import name="Crescimento" modo="tooltip" desktop="{{sim}}" escuro="{{nao}}" hint-size="640px,500px"></dc-import>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 15px; font-weight: 700">5 · Sem data de eclosão</span>
+<dc-import name="Crescimento" modo="semEclosao" desktop="{{sim}}" escuro="{{nao}}" hint-size="640px,560px"></dc-import>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 15px; font-weight: 700">6 · Sem pesagens ainda</span>
+<dc-import name="Crescimento" modo="vazio" desktop="{{sim}}" escuro="{{nao}}" hint-size="640px,480px"></dc-import>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1408,"height":1840}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { sim: true, nao: false };
+  }
+}
+</script>
+</body>
+</html>

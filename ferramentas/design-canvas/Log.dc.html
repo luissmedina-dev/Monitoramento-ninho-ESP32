@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Log do sistema · celular (escuro)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#e0874f}a:hover{color:#f1a877}
+</style>
+</helmet>
+<div style="width: 390px; height: 1560px; box-sizing: border-box; background: #1b1714; color: #f1e9e2; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; display: flex; flex-direction: column">
+
+<header style="padding: 16px 16px 12px; display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid #3a312b">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 18px; font-weight: 700">Ninho do filhote</span>
+<span style="font-size: 12px; color: #a89c93; font-variant-numeric: tabular-nums">ESP32 · 192.168.0.23</span>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 999px; background: #26201c; border: 1px solid #3a312b; font-size: 12px; font-weight: 650; font-variant-numeric: tabular-nums">
+<span style="width: 8px; height: 8px; border-radius: 50%; background: #7fc79a; box-shadow: 0 0 0 4px rgba(127,199,154,0.2)"></span>
+Ao vivo · 41 ms
+</div>
+</div>
+<nav aria-label="Seções" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; background: #26201c; border-radius: 12px">
+<a href="Main.dc.html" style="min-height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 9px; color: #f1e9e2; text-decoration: none; font-size: 14px; font-weight: 600">Painel</a>
+<a href="#" aria-current="page" style="min-height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 9px; background: #3a312b; color: #f1e9e2; text-decoration: none; font-size: 14px; font-weight: 650">Log</a>
+</nav>
+</header>
+
+<main style="padding: 14px 16px 24px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px">
+<h1 style="margin: 0; font-size: 20px; font-weight: 700">Log do sistema</h1>
+<span style="font-size: 12px; color: #a89c93">GET /logs a cada 10 s</span>
+</div>
+
+<div role="group" aria-label="Filtrar por nível" style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" aria-pressed="true" style="min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid #f1e9e2; background: #f1e9e2; color: #1b1714; font: inherit; font-size: 13px; font-weight: 700">Todos · 13</button>
+<button type="button" aria-pressed="false" style="min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid #3a312b; background: #26201c; color: #f1e9e2; font: inherit; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #f08a72"></span>Erro · 2</button>
+<button type="button" aria-pressed="false" style="min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid #3a312b; background: #26201c; color: #f1e9e2; font: inherit; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 2px; border: 1.5px solid #e0874f; box-sizing: border-box"></span>Aviso · 3</button>
+<button type="button" aria-pressed="false" style="min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid #3a312b; background: #26201c; color: #f1e9e2; font: inherit; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #5a4f48"></span>Info · 8</button>
+</div>
+
+<section style="background: #26201c; border: 1px solid #3a312b; border-radius: 14px; overflow: hidden">
+<div style="padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #2d2622">
+<h2 style="margin: 0; font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #a89c93">Boot 14 · atual</h2>
+<span style="font-size: 12px; color: #a89c93">ligado há 3 h 12 min</span>
+</div>
+<ul style="list-style: none; margin: 0; padding: 0">
+<li style="padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #3a312b; background: rgba(224,135,79,0.12)">
+<div style="display: flex; align-items: center; gap: 8px">
+<span style="padding: 2px 7px; border-radius: 5px; background: #322a25; color: #c9bdb4; font-size: 10px; font-weight: 750; letter-spacing: 0.06em">INFO</span>
+<span style="font-size: 12px; color: #a89c93; font-variant-numeric: tabular-nums">30/10 · 14:31:40</span>
+<span style="margin-left: auto; font-size: 11px; font-weight: 700; color: #e0874f">novo</span>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.4">Wi-Fi reconectado após 42 s fora (IP 192.168.0.23)</p>
+</li>
+<sc-for list="{{boot14}}" as="e" hint-placeholder-count="10">
+<li style="padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #3a312b">
+<div style="display: flex; align-items: center; gap: 8px">
+<sc-if value="{{e.erro}}" hint-placeholder-val="{{ false }}"><span style="padding: 2px 7px; border-radius: 5px; background: #f08a72; color: #1b1714; font-size: 10px; font-weight: 750; letter-spacing: 0.06em">ERRO</span></sc-if>
+<sc-if value="{{e.aviso}}" hint-placeholder-val="{{ false }}"><span style="padding: 1px 6px; border-radius: 5px; border: 1.5px solid #e0874f; color: #e0874f; font-size: 10px; font-weight: 750; letter-spacing: 0.06em">AVISO</span></sc-if>
+<sc-if value="{{e.info}}" hint-placeholder-val="{{ true }}"><span style="padding: 2px 7px; border-radius: 5px; background: #322a25; color: #c9bdb4; font-size: 10px; font-weight: 750; letter-spacing: 0.06em">INFO</span></sc-if>
+<span style="font-size: 12px; color: #a89c93; font-variant-numeric: tabular-nums">{{e.quando}}</span>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.4">{{e.msg}}</p>
+</li>
+</sc-for>
+</ul>
+</section>
+
+<section style="background: #26201c; border: 1px solid #3a312b; border-radius: 14px; overflow: hidden">
+<div style="padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #2d2622">
+<h2 style="margin: 0; font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #a89c93">Boot 13 · anterior</h2>
+<span style="font-size: 12px; color: #a89c93">modo AP, sem relógio</span>
+</div>
+<ul style="list-style: none; margin: 0; padding: 0">
+<sc-for list="{{boot13}}" as="e" hint-placeholder-count="2">
+<li style="padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #3a312b">
+<div style="display: flex; align-items: center; gap: 8px">
+<sc-if value="{{e.erro}}" hint-placeholder-val="{{ false }}"><span style="padding: 2px 7px; border-radius: 5px; background: #f08a72; color: #1b1714; font-size: 10px; font-weight: 750; letter-spacing: 0.06em">ERRO</span></sc-if>
+<sc-if value="{{e.aviso}}" hint-placeholder-val="{{ false }}"><span style="padding: 1px 6px; border-radius: 5px; border: 1.5px solid #e0874f; color: #e0874f; font-size: 10px; font-weight: 750; letter-spacing: 0.06em">AVISO</span></sc-if>
+<sc-if value="{{e.info}}" hint-placeholder-val="{{ true }}"><span style="padding: 2px 7px; border-radius: 5px; background: #322a25; color: #c9bdb4; font-size: 10px; font-weight: 750; letter-spacing: 0.06em">INFO</span></sc-if>
+<span style="font-size: 12px; color: #a89c93; font-variant-numeric: tabular-nums">{{e.quando}}</span>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.4">{{e.msg}}</p>
+</li>
+</sc-for>
+</ul>
+</section>
+
+<p style="margin: 0; text-align: center; font-size: 12px; color: #a89c93">Mostrando os 13 eventos guardados no ESP32</p>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1560}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const ev = (nivel, quando, msg) => ({ erro: nivel === 'ERRO', aviso: nivel === 'AVISO', info: nivel === 'INFO', quando, msg });
+    return {
+      boot14: [
+        ev('AVISO', '30/10 · 14:30:58', 'Wi-Fi perdido'),
+        ev('INFO', '30/10 · 13:58:12', 'Temperatura de volta à faixa: 31,8 °C'),
+        ev('AVISO', '30/10 · 13:41:05', 'Temperatura fora da faixa: 32,6 °C'),
+        ev('INFO', '30/10 · 13:00:03', 'Comida liberada (automático)'),
+        ev('INFO', '30/10 · 12:14:30', 'Comida liberada (manual)'),
+        ev('INFO', '30/10 · 11:47:31', 'HX711 voltou a responder'),
+        ev('ERRO', '30/10 · 11:47:21', 'HX711 sem leitura'),
+        ev('INFO', '30/10 · 11:21:09', 'Hora sincronizada (NTP)'),
+        ev('INFO', 'sem hora · boot 14 · 2,1 s após ligar', 'Wi-Fi conectado: Casa_2G (−63 dBm)'),
+        ev('ERRO', 'sem hora · boot 14 · 0,3 s após ligar', 'Reset por queda de tensão (brownout)')
+      ],
+      boot13: [
+        ev('AVISO', 'sem hora · boot 13 · 5 h 02 min após ligar', 'Wi-Fi perdido'),
+        ev('INFO', 'sem hora · boot 13 · 1,8 s após ligar', 'Modo AP ativado: rede Ninho-ESP32')
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

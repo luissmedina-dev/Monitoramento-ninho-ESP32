@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Estados do painel</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1330px; height: 1560px; box-sizing: border-box; padding: 40px; background: #efe8df; color: #2b2420; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; align-items: start">
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 700">1 · Temperatura alta</span><span style="font-size: 12px; color: #6b5f57; font-family: ui-monospace, Menlo, Consolas, monospace">temp &gt; temp_max</span></div>
+<div style="width: 390px; background: #f6f1ea; border: 1px solid #e9e0d6; border-radius: 20px; overflow: hidden">
+<div style="padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e9e0d6">
+<span style="font-size: 16px; font-weight: 700">Ninho do filhote</span>
+<span style="display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: #ffffff; border: 1px solid #e9e0d6; font-size: 12px; font-weight: 650"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3f8a5c; box-shadow: 0 0 0 4px rgba(63,138,92,0.18)"></span>Ao vivo · 41 ms</span>
+</div>
+<div style="padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 12px">
+<div role="alert" style="display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: #fbe9e5">
+<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" style="flex: none; margin-top: 1px"><path d="M14 14.8V5a2 2 0 1 0-4 0v9.8a4 4 0 1 0 4 0z" fill="none" stroke="#9e321f" stroke-width="2" stroke-linejoin="round"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700; color: #9e321f">Temperatura alta: 35,6 °C</span><span style="font-size: 12px; color: #9e321f">Acima da faixa ideal (28–32 °C) no ponto do sensor</span></div>
+</div>
+<section style="background: #ffffff; border: 1px solid #e9e0d6; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; justify-content: space-between"><h2 style="margin: 0; font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Ninho · vista térmica</h2></div>
+<dc-import name="Ninho" t="{{alta.t}}" tmin="{{faixa.min}}" tmax="{{faixa.max}}" peso="{{alta.peso}}" termica="{{sim}}" hint-size="100%,200px"></dc-import>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; border-top: 1px solid #e9e0d6; padding-top: 12px; font-variant-numeric: tabular-nums">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Temp.</span><span style="font-size: 24px; font-weight: 700; color: #9e321f">35,6 °C</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Umidade</span><span style="font-size: 24px; font-weight: 700">48 %</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Peso</span><span style="font-size: 24px; font-weight: 700">58 g</span></div>
+</div>
+</section>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 700">2 · Temperatura baixa</span><span style="font-size: 12px; color: #6b5f57; font-family: ui-monospace, Menlo, Consolas, monospace">temp &lt; temp_min</span></div>
+<div style="width: 390px; background: #f6f1ea; border: 1px solid #e9e0d6; border-radius: 20px; overflow: hidden">
+<div style="padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e9e0d6">
+<span style="font-size: 16px; font-weight: 700">Ninho do filhote</span>
+<span style="display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: #ffffff; border: 1px solid #e9e0d6; font-size: 12px; font-weight: 650"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3f8a5c; box-shadow: 0 0 0 4px rgba(63,138,92,0.18)"></span>Ao vivo · 36 ms</span>
+</div>
+<div style="padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 12px">
+<div role="alert" style="display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: #e6eef7">
+<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" style="flex: none; margin-top: 1px"><path d="M14 14.8V5a2 2 0 1 0-4 0v9.8a4 4 0 1 0 4 0z" fill="none" stroke="#2c5584" stroke-width="2" stroke-linejoin="round"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700; color: #2c5584">Temperatura baixa: 24,8 °C</span><span style="font-size: 12px; color: #2c5584">Abaixo da faixa ideal (28–32 °C) no ponto do sensor</span></div>
+</div>
+<section style="background: #ffffff; border: 1px solid #e9e0d6; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; justify-content: space-between"><h2 style="margin: 0; font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Ninho · vista térmica</h2></div>
+<dc-import name="Ninho" t="{{baixa.t}}" tmin="{{faixa.min}}" tmax="{{faixa.max}}" peso="{{baixa.peso}}" termica="{{sim}}" hint-size="100%,200px"></dc-import>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; border-top: 1px solid #e9e0d6; padding-top: 12px; font-variant-numeric: tabular-nums">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Temp.</span><span style="font-size: 24px; font-weight: 700; color: #2c5584">24,8 °C</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Umidade</span><span style="font-size: 24px; font-weight: 700">71 %</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Peso</span><span style="font-size: 24px; font-weight: 700">—</span><span style="font-size: 11px; color: #7a6e66">fora da balança</span></div>
+</div>
+</section>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 700">3 · Prato vazio</span><span style="font-size: 12px; color: #6b5f57; font-family: ui-monospace, Menlo, Consolas, monospace">vazio = true</span></div>
+<div style="width: 390px; background: #f6f1ea; border: 1px solid #e9e0d6; border-radius: 20px; overflow: hidden">
+<div style="padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e9e0d6">
+<span style="font-size: 16px; font-weight: 700">Ninho do filhote</span>
+<span style="display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: #ffffff; border: 1px solid #e9e0d6; font-size: 12px; font-weight: 650"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3f8a5c; box-shadow: 0 0 0 4px rgba(63,138,92,0.18)"></span>Ao vivo · 44 ms</span>
+</div>
+<div style="padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 12px">
+<div role="alert" style="display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: #fbe9e5">
+<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" style="flex: none; margin-top: 1px"><path d="M12 3 2 20h20L12 3zM12 10v4M12 17v.5" fill="none" stroke="#9e321f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700; color: #9e321f">Comedouro dos pais vazio</span><span style="font-size: 12px; color: #9e321f">Reabasteça a ração. Liberar agora não serve comida.</span></div>
+</div>
+<section style="background: #ffffff; border: 1px solid #e9e0d6; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<h2 style="margin: 0; font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Comedouro dos pais</h2>
+<span style="padding: 4px 10px; border-radius: 999px; background: #f8ebe2; color: #9a4a1f; font-size: 12px; font-weight: 650">Automático</span>
+</div>
+<div style="display: flex; gap: 14px; align-items: flex-start">
+<div style="width: 150px; flex: none">
+<dc-import name="Comedouro" nivel="{{zero}}" dist="{{vazio.dist}}" aberta="{{nao}}" hint-size="150px,180px"></dc-import>
+</div>
+<div style="display: flex; flex-direction: column; gap: 12px; padding-top: 4px">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Nível de ração</span><span style="font-size: 26px; font-weight: 700; color: #9e321f">0 %</span><span style="font-size: 12px; color: #7a6e66">sensor a 18,2 cm: fundo à vista</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Próxima liberação</span><span style="font-size: 16px; font-weight: 650">em 4 min</span></div>
+</div>
+</div>
+<button type="button" style="min-height: 48px; border: 1.5px solid #c4622d; border-radius: 12px; background: #ffffff; color: #9a4a1f; font: inherit; font-size: 15px; font-weight: 700">Liberar mesmo assim</button>
+</section>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 700">4 · Sensor sem leitura</span><span style="font-size: 12px; color: #6b5f57; font-family: ui-monospace, Menlo, Consolas, monospace">temp = null, umid = null</span></div>
+<div style="width: 390px; background: #f6f1ea; border: 1px solid #e9e0d6; border-radius: 20px; overflow: hidden">
+<div style="padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e9e0d6">
+<span style="font-size: 16px; font-weight: 700">Ninho do filhote</span>
+<span style="display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: #ffffff; border: 1px solid #e9e0d6; font-size: 12px; font-weight: 650"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3f8a5c; box-shadow: 0 0 0 4px rgba(63,138,92,0.18)"></span>Ao vivo · 39 ms</span>
+</div>
+<div style="padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 12px">
+<div role="status" style="display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: #f8ebe2">
+<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" style="flex: none; margin-top: 1px"><path d="M12 3 2 20h20L12 3zM12 10v4M12 17v.5" fill="none" stroke="#9a4a1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700; color: #9a4a1f">DHT22 sem leitura</span><span style="font-size: 12px; color: #9a4a1f">O ESP32 respondeu, mas sem temperatura e umidade. Confira o cabo do sensor.</span></div>
+</div>
+<section style="background: #ffffff; border: 1px solid #e9e0d6; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<h2 style="margin: 0; font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Ninho · filhote</h2>
+<span style="font-size: 12px; color: #7a6e66">vista térmica indisponível</span>
+</div>
+<dc-import name="Ninho" t="{{nulo}}" tmin="{{faixa.min}}" tmax="{{faixa.max}}" peso="{{sem.peso}}" termica="{{nao}}" hint-size="100%,190px"></dc-import>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; border-top: 1px solid #e9e0d6; padding-top: 12px; font-variant-numeric: tabular-nums">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Temp.</span><span style="font-size: 24px; font-weight: 700; color: #7a6e66">—</span><span style="font-size: 11px; color: #9e321f; font-weight: 600">sem leitura</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Umidade</span><span style="font-size: 24px; font-weight: 700; color: #7a6e66">—</span><span style="font-size: 11px; color: #9e321f; font-weight: 600">sem leitura</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Peso</span><span style="font-size: 24px; font-weight: 700">57 g</span></div>
+</div>
+<svg viewBox="0 0 340 100" style="width: 100%; height: auto; display: block" role="img" aria-label="Gráfico de temperatura com lacuna nos últimos 40 segundos, sem leitura">
+<rect x="30" y="{{gap.bandY}}" width="300" height="{{gap.bandH}}" fill="#3f8a5c" opacity="0.12"></rect>
+<rect x="{{gap.x}}" y="6" width="{{gap.w}}" height="74" fill="#f6f1ea"></rect>
+<text x="{{gap.tx}}" y="46" text-anchor="middle" font-size="10" font-weight="600" fill="#9e321f">sem leitura</text>
+<path d="{{gap.d}}" fill="none" stroke="#c4622d" stroke-width="2" stroke-linejoin="round"></path>
+<text x="30" y="96" font-size="10" fill="#7a6e66">−5 min</text>
+<text x="330" y="96" text-anchor="end" font-size="10" fill="#7a6e66">agora</text>
+</svg>
+</section>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 700">5 · ESP32 em modo AP</span><span style="font-size: 12px; color: #6b5f57; font-family: ui-monospace, Menlo, Consolas, monospace">modo_ap = true, hora_ok = false</span></div>
+<div style="width: 390px; background: #f6f1ea; border: 1px solid #e9e0d6; border-radius: 20px; overflow: hidden">
+<div style="padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e9e0d6">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 700">Ninho do filhote</span><span style="font-size: 12px; color: #6b5f57">ESP32 · 192.168.4.1</span></div>
+<span style="display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: #ffffff; border: 1px solid #e9e0d6; font-size: 12px; font-weight: 650"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3f8a5c; box-shadow: 0 0 0 4px rgba(63,138,92,0.18)"></span>Ao vivo · 9 ms</span>
+</div>
+<div style="padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 12px">
+<div role="status" style="display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: #e6eef7">
+<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" style="flex: none; margin-top: 1px"><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5v.5" fill="none" stroke="#2c5584" stroke-width="2" stroke-linecap="round"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700; color: #2c5584">Modo AP: rede própria do ESP32</span><span style="font-size: 12px; color: #2c5584">O roteador não respondeu. Sem internet, o relógio não sincroniza e o log registra “sem hora”.</span></div>
+</div>
+<section style="background: #ffffff; border: 1px solid #e9e0d6; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<h2 style="margin: 0; font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Conexão</h2>
+<span style="padding: 4px 10px; border-radius: 999px; background: #f8ebe2; color: #9a4a1f; font-size: 12px; font-weight: 650">AP · rede própria</span>
+</div>
+<div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Endereço</span>
+<span style="font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 22px; font-weight: 700">192.168.4.1<span style="color: #7a6e66">:80</span></span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px">
+<svg width="26" height="20" viewBox="0 0 26 20" role="img" aria-label="Sinal não se aplica">
+<rect x="0" y="14" width="4" height="5" rx="1" fill="#e9e0d6"></rect>
+<rect x="7" y="10" width="4" height="9" rx="1" fill="#e9e0d6"></rect>
+<rect x="14" y="6" width="4" height="13" rx="1" fill="#e9e0d6"></rect>
+<rect x="21" y="1" width="4" height="18" rx="1" fill="#e9e0d6"></rect>
+</svg>
+<span style="font-size: 12px; color: #7a6e66">RSSI não se aplica</span>
+</div>
+</div>
+<dl style="margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; font-variant-numeric: tabular-nums">
+<div><dt style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Rede (SSID)</dt><dd style="margin: 2px 0 0; font-size: 14px; font-weight: 600">Ninho-ESP32</dd></div>
+<div><dt style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">MAC</dt><dd style="margin: 2px 0 0; font-size: 13px; font-weight: 600; font-family: ui-monospace, Menlo, Consolas, monospace">24:6F:28:A1:3C:7F</dd></div>
+<div><dt style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Ligado há</dt><dd style="margin: 2px 0 0; font-size: 14px; font-weight: 600">6 min</dd></div>
+<div><dt style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Reconexões</dt><dd style="margin: 2px 0 0; font-size: 14px; font-weight: 600">5 tentativas</dd></div>
+<div><dt style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Relógio</dt><dd style="margin: 2px 0 0; font-size: 14px; font-weight: 600; color: #9a4a1f">sem hora</dd></div>
+<div><dt style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Porta</dt><dd style="margin: 2px 0 0; font-size: 14px; font-weight: 600">80</dd></div>
+</dl>
+</section>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 700">6 · Conexão perdida</span><span style="font-size: 12px; color: #6b5f57; font-family: ui-monospace, Menlo, Consolas, monospace">fetch sem resposta (timeout 3 s)</span></div>
+<div style="width: 390px; background: #f6f1ea; border: 1px solid #e9e0d6; border-radius: 20px; overflow: hidden">
+<div style="padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e9e0d6">
+<span style="font-size: 16px; font-weight: 700">Ninho do filhote</span>
+<span style="display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: #ffffff; border: 1px solid #e9e0d6; font-size: 12px; font-weight: 650; color: #6b5f57"><span style="width: 8px; height: 8px; border-radius: 50%; background: #a89c93"></span>Parado</span>
+</div>
+<div style="padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 12px">
+<div role="alert" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 12px; background: #c4412a; color: #ffffff">
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" style="flex: none; margin-top: 1px"><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5v.5M4 4l16 16" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700">Sem resposta do ESP32 há 14 s</span><span style="font-size: 12px">Pode ser o ESP32 desligado, o Wi-Fi caído ou o celular fora da rede. Tentando de novo a cada 2 s.</span></div>
+</div>
+<button type="button" style="align-self: flex-start; min-height: 44px; padding: 0 16px; border: 1.5px solid #ffffff; border-radius: 10px; background: transparent; color: #ffffff; font: inherit; font-size: 14px; font-weight: 700">Tentar agora</button>
+</div>
+<section style="background: #ffffff; border: 1px solid #e9e0d6; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<h2 style="margin: 0; font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Última leitura</h2>
+<span style="font-size: 12px; color: #7a6e66; font-variant-numeric: tabular-nums">14:32:06 · há 14 s</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; opacity: 0.55; font-variant-numeric: tabular-nums">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Temp.</span><span style="font-size: 24px; font-weight: 700">30,4 °C</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Umidade</span><span style="font-size: 24px; font-weight: 700">62 %</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Ração</span><span style="font-size: 24px; font-weight: 700">64 %</span></div>
+</div>
+<div style="border-top: 1px solid #e9e0d6; padding-top: 12px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<span style="font-size: 11px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6e66">Rede medida pelo navegador</span>
+<span style="font-size: 12px; font-weight: 700; color: #9e321f">7 sem resposta</span>
+</div>
+<svg viewBox="0 0 340 70" style="width: 100%; height: auto; display: block" role="img" aria-label="Latência normal até 14 segundos atrás, depois 7 requisições sem resposta">
+<path d="{{perd.d}}" fill="none" stroke="#3d6fa8" stroke-width="1.8" stroke-linejoin="round"></path>
+<path d="{{perd.x}}" stroke="#c4412a" stroke-width="2" stroke-linecap="round"></path>
+<text x="336" y="66" text-anchor="end" font-size="10" fill="#9e321f">timeout</text>
+</svg>
+</div>
+<button type="button" disabled="disabled" style="min-height: 48px; border: 0; border-radius: 12px; background: #e9e0d6; color: #6b5f57; font: inherit; font-size: 15px; font-weight: 700">Liberar comida · sem conexão</button>
+</section>
+</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1330,"height":1560}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const rng = (s) => () => (s = (s * 16807) % 2147483647) / 2147483647;
+    const r = rng(5);
+    const W = 340, pl = 30, pr = 10, pt = 6, pb = 20, lo = 26, hi = 34;
+    const yOf = (v) => pt + (1 - (v - lo) / (hi - lo)) * (100 - pt - pb);
+    const xOf = (i, n) => pl + (i / (n - 1)) * (W - pl - pr);
+    let d = '', v = 30.2;
+    const N = 150, cut = 130;
+    for (let i = 0; i < cut; i++) { v += (r() - 0.5) * 0.14 + (30.3 - v) * 0.03; d += (i ? 'L' : 'M') + xOf(i, N).toFixed(1) + ' ' + yOf(v).toFixed(1) + ' '; }
+    const gx = xOf(cut, N);
+    const gap = { d, x: gx.toFixed(1), w: (W - pr - gx).toFixed(1), tx: ((gx + W - pr) / 2).toFixed(1), bandY: yOf(32).toFixed(1), bandH: (yOf(28) - yOf(32)).toFixed(1) };
+    let pd = '', px = '';
+    for (let i = 0; i < 60; i++) {
+      const x = (i / 59) * 330;
+      if (i < 53) { const y = 6 + (1 - (30 + r() * 22) / 200) * 56; pd += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1) + ' '; }
+      else { px += 'M' + (x - 3).toFixed(1) + ' 9 l6 6 M' + (x + 3).toFixed(1) + ' 9 l-6 6 '; }
+    }
+    return {
+      sim: true, nao: false, nulo: null, zero: 0,
+      faixa: { min: 28, max: 32 },
+      alta: { t: 35.6, peso: 58 },
+      baixa: { t: 24.8, peso: 0 },
+      sem: { peso: 57 },
+      vazio: { dist: 18.2 },
+      gap,
+      perd: { d: pd, x: px }
+    };
+  }
+}
+</script>
+</body>
+</html>

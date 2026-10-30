@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Gráfico de crescimento · celular</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1640px; height: 1320px; box-sizing: border-box; padding: 40px; background: #f6f1ea; color: #2b2420; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 48px 40px; align-items: start">
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 15px; font-weight: 700">1 · Normal</span>
+<dc-import name="Crescimento" modo="normal" desktop="{{nao}}" escuro="{{nao}}" hint-size="360px,480px"></dc-import>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 15px; font-weight: 700">2 · Abaixo da faixa</span>
+<dc-import name="Crescimento" modo="abaixo" desktop="{{nao}}" escuro="{{nao}}" hint-size="360px,520px"></dc-import>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 15px; font-weight: 700">3 · Acima da faixa</span>
+<dc-import name="Crescimento" modo="acima" desktop="{{nao}}" escuro="{{nao}}" hint-size="360px,520px"></dc-import>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 15px; font-weight: 700">4 · Toque em um ponto</span>
+<dc-import name="Crescimento" modo="tooltip" desktop="{{nao}}" escuro="{{nao}}" hint-size="360px,480px"></dc-import>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 15px; font-weight: 700">5 · Sem data de eclosão</span>
+<dc-import name="Crescimento" modo="semEclosao" desktop="{{nao}}" escuro="{{nao}}" hint-size="360px,560px"></dc-import>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 15px; font-weight: 700">6 · Sem pesagens ainda</span>
+<dc-import name="Crescimento" modo="vazio" desktop="{{nao}}" escuro="{{nao}}" hint-size="360px,460px"></dc-import>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px; padding: 16px; margin: -16px; border-radius: 18px; background: #1b1714">
+<span style="font-size: 15px; font-weight: 700; color: #f1e9e2">Escuro · abaixo da faixa</span>
+<dc-import name="Crescimento" modo="abaixo" desktop="{{nao}}" escuro="{{sim}}" hint-size="360px,520px"></dc-import>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1640,"height":1320}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { sim: true, nao: false };
+  }
+}
+</script>
+</body>
+</html>
