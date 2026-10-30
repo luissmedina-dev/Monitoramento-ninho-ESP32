@@ -1192,18 +1192,25 @@ function grafico(el, pts, o) {
 
 // ---------------------------------------------------------------- ilustrações
 // Vista térmica: o ninho inteiro com UMA cor, porque há um sensor só (DHT22).
-// Verde dentro da faixa; fora dela, mistura até azul (frio) ou vermelho
+// Verde dentro da faixa; fora dela, a cor anda até azul (frio) ou vermelho
 // (quente) puros a 3 °C do limite.
-const VERDE = '#3f8a5c', AZUL = '#3d6fa8', VERM = '#c4412a';
+// Por que HSL: misturando em RGB, o meio do caminho entre verde e vermelho
+// é um marrom igual ao do ninho na vista normal, e a vista térmica parece
+// desligada justamente quando a temperatura começa a sair da faixa.
+// Interpolando o MATIZ (o "H" do HSL), a cor gira pela roda de cores:
+// verde -> amarelo -> laranja -> vermelho quando esquenta, e
+// verde -> ciano -> azul quando esfria.
+// Cada cor: [matiz em graus, saturação %, luminosidade %] (as mesmas
+// #3f8a5c, #3d6fa8 e #c4412a do design, convertidas para HSL)
+const VERDE = [143, 37, 39], AZUL = [212, 47, 45], VERM = [9, 65, 47];
+const hsl = c => 'hsl(' + c[0] + ',' + c[1] + '%,' + c[2] + '%)';
 function misturar(a, b, k) {      // k = 0 -> cor a; k = 1 -> cor b
-  const rgb = h => [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16));
-  const A = rgb(a), B = rgb(b);
-  return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * k).toString(16).padStart(2, '0')).join('');
+  return hsl(a.map((v, i) => Math.round(v + (b[i] - v) * k)));
 }
 function corTermica(t, tmin, tmax) {
   if (t < tmin) return misturar(VERDE, AZUL, Math.min(1, (tmin - t) / 3));
   if (t > tmax) return misturar(VERDE, VERM, Math.min(1, (t - tmax) / 3));
-  return VERDE;
+  return hsl(VERDE);
 }
 let termica = false;
 function vista(t) {
@@ -1263,10 +1270,11 @@ function desenharNinho() {
     const y = v => 190 - (Math.max(22, Math.min(40, v)) - 22) / 18 * 170;
     const o = v => ((y(v) - 20) / 170).toFixed(3);   // posição na régua, de 0 (topo) a 1
     const yMax = y(d.temp_max), yMin = y(d.temp_min), yv = y(t);
-    s += '<defs><linearGradient id="escala" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="' + VERM + '"/><stop offset="' + o(d.temp_max + 3) + '" stop-color="' + VERM + '"/>' +
-      '<stop offset="' + o(d.temp_max) + '" stop-color="' + VERDE + '"/><stop offset="' + o(d.temp_min) + '" stop-color="' + VERDE + '"/>' +
-      '<stop offset="' + o(d.temp_min - 3) + '" stop-color="' + AZUL + '"/><stop offset="1" stop-color="' + AZUL + '"/></linearGradient></defs>' +
+    // A régua usa a mesma corTermica() do ninho, de 0,5 em 0,5 °C: o
+    // degradê do SVG misturaria em RGB entre paradas distantes
+    let paradas = '';
+    for (let v = 40; v >= 22; v -= 0.5) paradas += '<stop offset="' + o(v) + '" stop-color="' + corTermica(v, d.temp_min, d.temp_max) + '"/>';
+    s += '<defs><linearGradient id="escala" x1="0" y1="0" x2="0" y2="1">' + paradas + '</linearGradient></defs>' +
       '<text class="il-t" x="359" y="12" text-anchor="middle">°C</text>' +
       '<rect x="352" y="20" width="14" height="170" rx="7" fill="url(#escala)"/>' +
       '<path d="M368 ' + yMax + 'H372V' + yMin + 'H368" style="fill:none;stroke:var(--texto)"/>' +
