@@ -195,6 +195,7 @@ Pesagem pesagens[MAX_PESAGENS];
 uint32_t msPesagem[MAX_PESAGENS];  // millis() da pesagem (para acertar a hora depois)
 int nPesagens = 0;
 uint32_t versaoPesagens = 0;       // muda a cada alteração; a página recarrega o gráfico
+uint32_t dataEclosao = 0;          // data de eclosão do filhote (epoch em s); 0 = não informada
 
 // --- Histórico de temperatura (memória RAM, últimas 6 horas) ---
 struct PontoTemp {
@@ -689,7 +690,7 @@ void handleDados() {
   String ssid = modoAP ? AP_NOME : WIFI_NOME;
 
   String j = "{";
-  j.reserve(950);
+  j.reserve(980);
   addCampo(j, "temp", num(temperatura, 1));
   addCampo(j, "umid", num(umidade, 0));
   addCampo(j, "temp_min", String(TEMP_MIN_C, 1));
@@ -708,6 +709,7 @@ void handleDados() {
   addCampo(j, "origem", String("\"") + origemUltima + "\"");
   addCampo(j, "espera_s", String(espera));
   addCampo(j, "pesagens_ver", String(versaoPesagens));
+  addCampo(j, "eclosao", String(dataEclosao));
   addCampo(j, "modo_ap", modoAP ? "true" : "false");
   addCampo(j, "rssi", String(modoAP ? 0 : WiFi.RSSI()));
   addCampo(j, "hora_ok", horaValida() ? "true" : "false");
@@ -877,6 +879,27 @@ void handleLimpar() {
   responder(true, "Pesagens apagadas");
 }
 
+void handleEclosao() {
+  // t = epoch em segundos (a página manda a meia-noite local do dia escolhido)
+  String arg = server.arg("t");
+  char* fim;
+  long long t = strtoll(arg.c_str(), &fim, 10);
+  if (arg.length() == 0 || *fim != '\0') {
+    responder(false, "Informe a data de eclosão (t = epoch em segundos)");
+    return;
+  }
+  // Sem relógio acertado não dá para conferir se a data está no futuro
+  bool noFuturo = horaValida() && t > (long long)time(nullptr) + 86400;
+  if (t < 1700000000LL || t > 0xFFFFFFFFLL || noFuturo) {
+    responder(false, "Data de eclosão inválida");
+    return;
+  }
+  dataEclosao = (uint32_t)t;
+  prefs.putUInt("eclosao", dataEclosao);
+  registrarLog(NIVEL_INFO, "Data de eclosão salva");
+  responder(true, "Data de eclosão salva");
+}
+
 void configurarServidor() {
   server.on("/", HTTP_GET, handlePagina);
   server.on("/dados", HTTP_GET, handleDados);
@@ -891,6 +914,7 @@ void configurarServidor() {
   server.on("/calibrar", HTTP_POST, handleCalibrar);
   server.on("/pesar", HTTP_POST, handlePesar);
   server.on("/limpar", HTTP_POST, handleLimpar);
+  server.on("/eclosao", HTTP_POST, handleEclosao);
   server.onNotFound([]() { server.send(404, "text/plain", "Pagina nao encontrada"); });
   server.begin();
 }
@@ -1036,6 +1060,7 @@ void setup() {
     prefs.getBytes("pesagens", pesagens, tamanho);
     nPesagens = tamanho / sizeof(Pesagem);
   }
+  dataEclosao = prefs.getUInt("eclosao", 0);
   Serial.printf("%d pesagens guardadas. Fator da balança: %.2f\n", nPesagens, fatorBalanca);
 
   // Sensor de distância

@@ -61,6 +61,7 @@ curl http://$IP/dados
 | `origem` | texto | Origem da última liberação (`manual` ou `automática`) |
 | `espera_s` | inteiro | Segundos até a próxima liberação automática ser permitida |
 | `pesagens_ver` | inteiro | Muda sempre que as pesagens mudam |
+| `eclosao` | inteiro | Data de eclosão do filhote (epoch, s), definida por `POST /eclosao`; 0 = não informada |
 | `modo_ap` | bool | `true` = o ESP32 está com a rede própria (AP) ligada |
 | `rssi` | inteiro | Sinal do Wi-Fi (dBm); 0 em modo AP |
 | `hora_ok` | bool | O relógio do ESP32 está acertado |
@@ -119,6 +120,7 @@ Eventos registrados:
 | INFO | `Pesagem manual registrada: <g> g` / `Pesagem automática registrada: <g> g` |
 | INFO | `Balança tarada` / `Balança tarada automaticamente (primeira vez)` / `Balança calibrada (fator <f>)` |
 | INFO | `Alimentação automática ligada` / `Alimentação automática desligada` |
+| INFO | `Data de eclosão salva` |
 | INFO | `DHT22 voltou a responder` / `HX711 voltou a responder` / `HC-SR04 voltou a responder` |
 | INFO | `Temperatura voltou à faixa: <t> °C` |
 | AVISO | `Wi-Fi perdido` |
@@ -221,3 +223,16 @@ Apaga todas as pesagens guardadas.
 ```sh
 curl -X POST http://$IP/limpar
 ```
+
+### `POST /eclosao?t=<epoch>`
+Guarda a data de eclosão do filhote (epoch em segundos) na NVS. A página manda a meia-noite (horário local) do dia escolhido e usa a data para calcular a idade do filhote e comparar o peso com a faixa de referência. O valor aparece no campo `eclosao` de `/dados`.
+
+```sh
+curl -X POST "http://$IP/eclosao?t=1761620400"
+```
+
+| Resposta | Quando |
+|---|---|
+| 200 `Data de eclosão salva` | Data aceita (também grava o evento no log) |
+| 400 `Informe a data de eclosão (t = epoch em segundos)` | `t` faltando ou não é um número inteiro |
+| 400 `Data de eclosão inválida` | `t` antes de nov/2023 (1700000000) ou mais de 1 dia no futuro. O limite do futuro só é conferido com o relógio acertado (`hora_ok`) |
