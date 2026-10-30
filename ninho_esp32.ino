@@ -632,9 +632,10 @@ const char PAGINA[] PROGMEM = R"rawliteral(
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ninho do filhote</title>
 <style>
-/* Cores do design. --suave2 e --ok-txt existem por contraste: texto pequeno
-   precisa de 4,5:1, e --suave sobre --fundo dá só 4,37:1. */
-:root{--fundo:#f6f1ea;--cartao:#fff;--texto:#2b2420;--suave:#7a6e66;--suave2:#6b5f57;--linha:#e9e0d6;--marca:#c4622d;--botao:#c4622d;
+/* Cores do design. --suave2, --ok-txt e --botao existem por contraste: texto
+   pequeno precisa de 4,5:1, e --suave sobre --fundo dá só 4,37:1; o branco
+   sobre #c4622d dá 4,0:1, sobre #b0561f passa. */
+:root{--fundo:#f6f1ea;--cartao:#fff;--texto:#2b2420;--suave:#7a6e66;--suave2:#6b5f57;--linha:#e9e0d6;--marca:#c4622d;--botao:#b0561f;
 --ok:#3f8a5c;--ok-txt:#2f7049;--alerta:#c4412a;--alerta-txt:#9e321f;--alerta-bg:#fbe9e5;--frio:#3d6fa8;--frio-txt:#2c5584;--frio-bg:#e6eef7;
 --marca-txt:#9a4a1f;--marca-bg:#f8ebe2;--neutro-bg:#efe9e3;--info-txt:#5a4f48}
 @media (prefers-color-scheme:dark){:root{color-scheme:dark;--fundo:#1b1714;--cartao:#26201c;--texto:#f1e9e2;--suave:#a89c93;--suave2:#a89c93;--linha:#3a312b;--marca:#e0874f;
