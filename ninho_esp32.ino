@@ -860,8 +860,11 @@ let dados = null;                 // última resposta de /dados
 let logs = [], bootAtual = 0;     // /logs (mais recente primeiro)
 let conectado = false, tUltimaResposta = 0;
 let versaoPesagens = -1, pesagens = [];
-const hist = [], MAX_HIST = 1800; // 1 h de leituras (uma a cada 2 s), só na memória
-let histCortado = false;
+// Histórico de temperatura e umidade: 1 ponto por minuto (a mesma taxa do
+// ESP32), janela de 6 h. Começa com o /historico do ESP32 e recebe um ponto
+// novo do /dados a cada minuto.
+const hist = [], JANELA = 6 * 3600 * 1000;
+let tUltimoPonto = 0, histDoEsp = false;
 const rede = { total: 0, falhas: 0, lat: [] };   // lat: últimas 60 (ms, ou null = sem resposta)
 let filtro = '', novos = new Set();
 let vistoAte = 0;                 // id do último ERRO/AVISO que a pessoa já viu
@@ -954,11 +957,26 @@ function toast(t) {
 // ---------------------------------------------------------------- respostas
 function receberDados(d) {
   dados = d; conectado = true; tUltimaResposta = Date.now();
-  hist.push({ t: Date.now(), temp: d.temp, umid: d.umid });
-  if (hist.length > MAX_HIST) { hist.shift(); histCortado = true; }
+  if (Date.now() - tUltimoPonto >= 60000) guardarPonto(Date.now(), d.temp, d.umid);
   const p = $('ponto');            // "ao vivo": o ponto pisca a cada resposta
   p.classList.remove('pisca'); void p.offsetWidth; p.classList.add('pisca');
   desenharPainel();
+}
+function guardarPonto(t, temp, umid) {
+  hist.push({ t, temp, umid });
+  tUltimoPonto = t;
+  while (hist.length && hist[0].t < Date.now() - JANELA) hist.shift();   // mantém só as últimas 6 h
+}
+// /historico manda o millis() de cada ponto e o millis() de agora ("agora");
+// a diferença entre os dois é há quanto tempo o ponto foi medido.
+async function carregarHistorico() {
+  try {
+    const r = await pedir('/historico');
+    if (!r.ok) return;
+    const agora = Date.now();
+    for (const p of r.j.pontos) guardarPonto(agora - (r.j.agora - p[0]), p[1], p[2]);
+    histDoEsp = true;
+  } catch (e) {}                  // falhou: segue só com o que chegar pelo /dados
 }
 function semResposta() {
   conectado = false;
@@ -1110,7 +1128,9 @@ function desenharRede() {
 }
 
 // Gráfico de linha em SVG. pts = [{x, y}]; y null = sem leitura, vira uma
-// lacuna na linha (em vez de ligar os dois lados do buraco).
+// lacuna na linha (em vez de ligar os dois lados do buraco). Com o.lacuna,
+// pontos mais distantes que isso no tempo também abrem lacuna: o ESP32 não
+// guarda ponto no histórico quando o DHT22 falha.
 function grafico(el, pts, o) {
   const W = Math.max(el.clientWidth, 260), H = o.H, m = { l: 36, r: 12, t: 10, b: 22 };
   const ys = pts.filter(p => p.y != null).map(p => p.y);
@@ -1131,6 +1151,7 @@ function grafico(el, pts, o) {
   let d = '', ant = false, ult = null;
   for (const p of pts) {
     if (p.y == null) { ant = false; continue; }
+    if (ant && o.lacuna && p.x - ult.x > o.lacuna) ant = false;
     d += (ant ? 'L' : 'M') + X(p.x) + ' ' + Y(p.y);
     ant = true; ult = p;
     if (o.pontos) s += '<circle class="' + o.cor + '" cx="' + X(p.x) + '" cy="' + Y(p.y) + '" r="3.5"/>';
@@ -1144,16 +1165,18 @@ function grafico(el, pts, o) {
 
 function desenharGraficos() {
   if (!dados || $('painel').hidden) return;
-  const periodo = histCortado ? 'última hora' : 'desde que a página abriu';
+  const periodo = histDoEsp ? 'últimas 6 h' : 'desde que a página abriu';
   $('tTemp').textContent = 'Temperatura · ' + periodo;
   $('tUmid').textContent = 'Umidade · ' + periodo;
   const hora = ms => hms(new Date(ms)).slice(0, 5);
-  grafico($('gTemp'), hist.map(h => ({ x: h.t, y: h.temp })), {
-    H: 130, cor: 'temp', folga: 1, casas: 0, faixa: [dados.temp_min, dados.temp_max],
+  // Os pontos guardados (1 por minuto) mais a leitura mais recente no fim
+  const pts = hist.concat({ t: tUltimaResposta, temp: dados.temp, umid: dados.umid });
+  grafico($('gTemp'), pts.map(h => ({ x: h.t, y: h.temp })), {
+    H: 130, cor: 'temp', folga: 1, casas: 0, faixa: [dados.temp_min, dados.temp_max], lacuna: 150000,
     vazio: 'Aguardando leituras do DHT22.', aria: 'Temperatura do ninho ' + periodo,
     rotX: hora, rotFim: (x, u) => 'agora · ' + fmt(u.y, 1) + ' °C' });
-  grafico($('gUmid'), hist.map(h => ({ x: h.t, y: h.umid })), {
-    H: 110, cor: 'umid', folga: 2, casas: 0,
+  grafico($('gUmid'), pts.map(h => ({ x: h.t, y: h.umid })), {
+    H: 110, cor: 'umid', folga: 2, casas: 0, lacuna: 150000,
     vazio: 'Aguardando leituras do DHT22.', aria: 'Umidade do ninho ' + periodo,
     rotX: hora, rotFim: (x, u) => 'agora · ' + fmt(u.y, 0) + ' %' });
   $('notaFaixa').textContent = 'Faixa verde = ideal (' + fmt(dados.temp_min, 0) + '–' + fmt(dados.temp_max, 0) + ' °C), informada pelo ESP32. Lacuna na linha = sem leitura.';
@@ -1239,6 +1262,7 @@ window.addEventListener('resize', () => { desenharGraficos(); desenharRede(); de
 (async () => {
   // Acerta o relógio do ESP32 com o do navegador, caso ele esteja sem internet
   try { await pedir('/hora?ts=' + Math.floor(Date.now() / 1000)); } catch (e) {}
+  await carregarHistorico();       // uma vez só, na mesma fila
   ciclo();
 })();
 </script>
