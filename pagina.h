@@ -16,10 +16,10 @@ const char PAGINA[] PROGMEM = R"rawliteral(
    sobre #c4622d dá 4,0:1, sobre #b0561f passa. */
 :root{--fundo:#f6f1ea;--cartao:#fff;--texto:#2b2420;--suave:#7a6e66;--suave2:#6b5f57;--linha:#e9e0d6;--marca:#c4622d;--botao:#b0561f;
 --ok:#3f8a5c;--ok-txt:#2f7049;--alerta:#c4412a;--alerta-txt:#9e321f;--alerta-bg:#fbe9e5;--frio:#3d6fa8;--frio-txt:#2c5584;--frio-bg:#e6eef7;
---marca-txt:#9a4a1f;--marca-bg:#f8ebe2;--neutro-bg:#efe9e3;--info-txt:#5a4f48}
+--marca-txt:#9a4a1f;--marca-bg:#f8ebe2;--neutro-bg:#efe9e3;--info-txt:#5a4f48;--ok-bg:#e5f1e9}
 @media (prefers-color-scheme:dark){:root{color-scheme:dark;--fundo:#1b1714;--cartao:#26201c;--texto:#f1e9e2;--suave:#a89c93;--suave2:#a89c93;--linha:#3a312b;--marca:#e0874f;
 --ok:#7fc79a;--ok-txt:#7fc79a;--alerta:#f08a72;--alerta-txt:#f08a72;--alerta-bg:#3a2620;--frio:#8ab4e8;--frio-txt:#8ab4e8;--frio-bg:#1d2f45;
---marca-txt:#e0874f;--marca-bg:#3a2a20;--neutro-bg:#322a25;--info-txt:#c9bdb4}}
+--marca-txt:#e0874f;--marca-bg:#3a2a20;--neutro-bg:#322a25;--info-txt:#c9bdb4;--ok-bg:#1f3327}}
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--fundo);color:var(--texto);font-variant-numeric:tabular-nums}
 [hidden]{display:none!important}
@@ -30,20 +30,24 @@ h1{margin:0;font-size:18px}
 .vivo{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:99px;background:var(--cartao);border:1px solid var(--linha);font-size:12px;font-weight:650}
 .ponto{width:8px;height:8px;border-radius:50%;background:var(--suave);flex:none}
 .on .ponto{background:var(--ok)}
+.caiu{color:var(--alerta-txt);border-color:var(--alerta)}.caiu .ponto{background:var(--alerta)}
 .pisca{animation:pisca .7s ease-out}
 @keyframes pisca{from{box-shadow:0 0 0 0 var(--ok)}to{box-shadow:0 0 0 7px transparent}}
-.abas{order:3;flex:1 1 100%;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:var(--linha);border-radius:12px}
+.abas{order:3;flex:1 1 100%;display:grid;grid-template-columns:1fr 1fr auto;gap:4px;padding:4px;background:var(--linha);border-radius:12px}
 .abas button{min-height:44px;border:0;border-radius:9px;background:transparent;color:var(--texto);font:inherit;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
 .abas button[aria-selected=true]{background:var(--cartao);font-weight:700}
+/* Técnico: rótulo discreto, para o dono do ninho não achar que precisa abrir */
+.abas .discreta{padding:0 12px;font-size:12px;font-weight:500;color:var(--suave2)}
+.abas .discreta[aria-selected=true]{color:var(--texto);font-weight:650}
 .cont{min-width:20px;height:20px;padding:0 6px;border-radius:99px;background:var(--botao);color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
-main,#log{max-width:980px;margin:0 auto;padding:12px 16px 28px;display:grid;gap:12px}
-main>*{min-width:0}
+.painel{max-width:980px;margin:0 auto;padding:12px 16px 28px;display:grid;gap:12px}
+.painel>*{min-width:0}
 /* No celular a ordem dos cartões segue o design; no desktop vale a ordem do HTML */
 @media (max-width:759px){.o0{order:0}.o1{order:1}.o2{order:2}.o3{order:3}.o4{order:4}.o5{order:5}.o6{order:6}.o7{order:7}}
 .so-desk{display:none}
 @media (min-width:760px){
- .abas{order:0;flex:0 0 auto;grid-template-columns:auto auto}.abas button{padding:0 22px}
- main{grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+ .abas{order:0;flex:0 0 auto;grid-template-columns:auto auto auto}.abas button{padding:0 22px}.abas .discreta{padding:0 14px}
+ .painel{grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
  .c7{grid-column:span 7}.c5{grid-column:span 5}.c12{grid-column:1/-1}.so-desk{display:flex}.cartao{padding:20px}}
 .cartao{background:var(--cartao);border:1px solid var(--linha);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
 .cab{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
@@ -71,13 +75,16 @@ button{font:inherit}
 details{font-size:14px}summary{cursor:pointer;color:var(--suave);min-height:32px}
 input[type=number]{font:inherit;width:100px;min-height:44px;padding:0 8px;border-radius:10px;border:1px solid var(--linha);background:var(--fundo);color:var(--texto)}
 .chave{display:flex;align-items:center;gap:10px;font-size:14px;min-height:44px}
-.chave input{width:20px;height:20px;accent-color:var(--botao)}
+.chave input[type=checkbox]{width:20px;height:20px;accent-color:var(--botao)}
 #avisos:empty{display:none}
 .av{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;font-size:12px;margin-bottom:12px}
 .av b{display:block;font-size:14px;margin-bottom:2px}.av svg{flex:none}
 .av.q{background:var(--alerta-bg)}.av.f{background:var(--frio-bg)}.av.m{background:var(--marca-bg);color:var(--marca-txt)}
 .av.perdido{background:#c4412a;color:#fff;flex-wrap:wrap}.av.perdido .btn{border:1.5px solid #fff;background:transparent;color:#fff}
-.parado main .cartao{opacity:.6}
+.parado .painel .cartao{opacity:.6}
+.av.ok{background:var(--ok-bg);color:var(--ok-txt)}.av.ok b{color:var(--texto)}
+.duas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.linha-tec{margin:0;font-size:13px;color:var(--suave2)}
 .g{display:block;overflow:visible}
 .g-grade{stroke:var(--linha);stroke-width:1}.g-eixo{fill:var(--suave);font-size:10px}
 .g-faixa{fill:var(--ok);opacity:.13}.g-faixa-l{stroke:var(--ok);stroke-dasharray:3 3;opacity:.6}
@@ -115,7 +122,11 @@ input[type=date]{min-height:44px;padding:0 10px;border:1px solid var(--linha);bo
 .linha-ev{display:flex;align-items:center;gap:8px}
 .lk{background:none;border:0;padding:0;color:var(--marca-txt);font-weight:650;font-size:13px;cursor:pointer;text-decoration:underline}
 .rodape{margin:4px 0 0;text-align:center;font-size:12px;color:var(--suave2)}
-#log{grid-template-columns:minmax(0,1fr)}
+#historico{grid-template-columns:minmax(0,1fr);max-width:760px}
+/* Selos do histórico: ERRO = "Precisa de atenção", AVISO = "Aviso", INFO sem selo */
+.selo{align-self:flex-start;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700}
+.selo.atencao{background:var(--alerta);color:var(--cartao)}.selo.aviso{padding:1px 7px;border:1.5px solid var(--marca);color:var(--marca-txt)}
+.hora{font-size:12px;color:var(--suave);min-width:42px}
 .cab-log{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}.cab-log h2{margin:0;font-size:20px}
 .filtros{display:flex;flex-wrap:wrap;gap:8px}
 .filtros button{min-height:44px;padding:0 14px;border-radius:99px;border:1px solid var(--linha);background:var(--cartao);color:var(--texto);font-size:13px;font-weight:600;cursor:pointer}
@@ -137,21 +148,24 @@ input[type=date]{min-height:44px;padding:0 10px;border:1px solid var(--linha);bo
 <body>
 <header>
 <div class="topo">
-  <div><h1>Ninho do filhote</h1><div class="sub" id="ender">ESP32 · conectando…</div></div>
+  <h1>Ninho do filhote</h1>
   <div class="abas" role="tablist" aria-label="Seções">
-    <button role="tab" id="abaPainel" aria-selected="true" aria-controls="painel" onclick="mostrar('painel')">Painel</button>
-    <button role="tab" id="abaLog" aria-selected="false" aria-controls="log" onclick="mostrar('log')">Log <span class="cont" id="naoVistos" hidden></span></button>
+    <button role="tab" id="abaNinho" aria-selected="true" aria-controls="ninho" onclick="mostrar('ninho')">Ninho</button>
+    <button role="tab" id="abaHist" aria-selected="false" aria-controls="historico" onclick="mostrar('historico')">Histórico <span class="cont" id="naoVistos" hidden></span></button>
+    <button role="tab" id="abaTec" class="discreta" aria-selected="false" aria-controls="tecnico" onclick="mostrar('tecnico')">Técnico</button>
   </div>
-  <div class="vivo" id="vivo"><span class="ponto" id="ponto"></span><span id="vivoTxt">Conectando…</span></div>
+  <div class="vivo" id="vivo" role="status"><span class="ponto" id="ponto"></span><span id="vivoTxt">Conectando…</span></div>
 </div>
 </header>
 
-<main id="painel" role="tabpanel" aria-labelledby="abaPainel">
-  <div id="avisos" class="c12 o0"></div>
+<!-- Visão do cliente: o dono do ninho só quer saber se o filhote está bem.
+     Aqui não aparecem termos técnicos (eles ficam na aba Técnico). -->
+<main id="ninho" class="painel" role="tabpanel" aria-labelledby="abaNinho">
+  <div id="resumo" class="c12 o0"></div>
 
   <section class="cartao c7 o1">
     <div class="cab">
-      <h2 class="rot">Ninho · filhote</h2>
+      <h2 class="rot">Filhote</h2>
       <div class="vistas" role="group" aria-label="Vista do ninho">
         <span class="nota" id="semTermica" hidden>vista térmica indisponível</span>
         <button aria-pressed="true" id="vNormal" onclick="vista(false)">Normal</button>
@@ -159,25 +173,90 @@ input[type=date]{min-height:44px;padding:0 10px;border:1px solid var(--linha);bo
       </div>
     </div>
     <div id="ninhoSvg"></div>
-    <p class="nota legenda" id="legenda" hidden><span id="corLeg"></span>Uma cor só: temperatura no ponto do sensor (DHT22). Não é mapa de calor.</p>
-    <div class="tres" style="border-top:1px solid var(--linha);padding-top:12px">
-      <div><span class="rot">Temperatura</span><span class="big" id="temp">—</span><span class="nota" id="faixa"></span></div>
-      <div><span class="rot">Umidade</span><span class="big" id="umid">—</span><span class="nota">relativa · DHT22</span></div>
-      <div><span class="rot">Peso</span><span class="big" id="peso">—</span><span class="nota" id="pesoNota"></span></div>
+    <p class="nota legenda" id="legenda" hidden><span id="corLeg"></span>Uma cor só: a temperatura é medida em um ponto da borda do ninho. Não é mapa de calor.</p>
+    <div class="duas" style="border-top:1px solid var(--linha);padding-top:12px">
+      <div class="pilha"><span class="rot">Temperatura</span><span class="big" id="temp">—</span><span class="med" id="tempPalavra"></span><span class="nota" id="faixa"></span></div>
+      <div class="pilha"><span class="rot">Peso</span><span class="big" id="peso">—</span><span class="med" id="pesoPalavra"></span><span class="nota" id="pesoNota"></span></div>
     </div>
-    <div class="estado" id="estTemp"></div>
-    <details>
-      <summary>Balança: pesar, zerar e calibrar</summary>
-      <p class="nota">O peso é registrado sozinho quando fica estável. Para calibrar: zere com a balança vazia, coloque um objeto de peso conhecido, informe o peso e toque em Calibrar.</p>
+  </section>
+
+  <section class="cartao c5 o2">
+    <div class="cab"><h2 class="rot">Comida dos pais</h2><span class="chip marca" id="modo">—</span></div>
+    <div class="lado">
+      <div class="fig" id="comSvg"></div>
+      <div class="pilha" style="gap:12px">
+        <div class="pilha"><span class="rot">Prato</span><span class="big" id="nivel">—</span></div>
+        <div class="pilha"><span class="rot">Liberação automática</span><span class="med" id="proxima"></span></div>
+      </div>
+    </div>
+    <span class="nota" id="ultima"></span>
+    <label class="chave"><input type="checkbox" id="auto" onchange="acao('/auto?on='+(this.checked?1:0))"> Liberar comida automaticamente</label>
+    <button class="btn prim" id="btnLiberar" onclick="acao('/liberar')">Liberar comida</button>
+  </section>
+
+  <section class="cartao c7 o3">
+    <div class="cab"><h2 class="rot">Crescimento do filhote</h2><span class="med" id="resumoPeso"></span></div>
+    <div id="seloPeso" class="pilha" style="gap:8px"></div>
+    <div id="gPeso"></div>
+    <span class="nota" id="eixoPeso"></span>
+    <div class="leg" id="legPeso"></div>
+    <details id="ecl">
+      <summary id="eclTit">Informe a data de eclosão</summary>
+      <form class="form-ecl" onsubmit="salvarEclosao(event)">
+        <p class="nota" style="flex:1 1 100%;margin:0">Com a data de eclosão dá para ver a idade do filhote e comparar o peso com a faixa de referência.</p>
+        <label>Data de eclosão<input type="date" id="dataEcl" required></label>
+        <button class="btn prim">Salvar</button>
+        <span class="nota" id="eclMsg" role="status" style="flex:1 1 100%"></span>
+      </form>
+    </details>
+    <span class="nota" id="fontePeso"></span>
+    <span class="nota" id="notaPeso"></span>
+  </section>
+
+  <section class="cartao c5 o4 so-desk">
+    <div class="cab"><h2 class="rot">Últimos acontecimentos</h2><button class="lk" onclick="mostrar('historico')">Ver histórico</button></div>
+    <div id="ultimos"></div>
+  </section>
+
+  <p class="rodape c12 o5" id="rodape"></p>
+</main>
+
+<section id="historico" class="painel" role="tabpanel" aria-labelledby="abaHist" hidden>
+  <div class="cab-log"><h2>Histórico do ninho</h2></div>
+  <div id="listaHist" style="display:grid;gap:14px"><p class="vazio">Carregando o histórico…</p></div>
+</section>
+
+<!-- Aba Técnico: requisitos do trabalho (rede, log com níveis, sensores) -->
+<section id="tecnico" class="painel" role="tabpanel" aria-labelledby="abaTec" hidden>
+  <p class="c12 linha-tec" id="tecTopo">Informações técnicas do sistema (servidor HTTP no ESP32, porta 80)</p>
+  <div id="avisos" class="c12"></div>
+
+  <section class="cartao c7">
+    <div class="cab"><h2 class="rot">Sensores</h2><span class="estado" id="estTemp"></span></div>
+    <div class="tres">
+      <div><span class="rot">Temperatura</span><span class="big" id="tecTemp">—</span><span class="nota" id="tecFaixa"></span></div>
+      <div><span class="rot">Umidade</span><span class="big" id="umid">—</span><span class="nota">relativa · DHT22</span></div>
+      <div><span class="rot">Balança</span><span class="big" id="tecPeso">—</span><span class="nota" id="tecPesoNota"></span></div>
+    </div>
+    <dl>
+      <div><dt class="rot">Distância até a comida</dt><dd id="dist">—</dd></div>
+      <div><dt class="rot">Comporta (servo)</dt><dd id="comporta">—</dd></div>
+      <div><dt class="rot">Liberações desde o boot</dt><dd id="nLib">—</dd></div>
+      <div><dt class="rot">Pesagens guardadas</dt><dd id="nPes">—</dd></div>
+    </dl>
+    <div class="sep">
+      <span class="rot">Ajustes da balança (HX711)</span>
+      <p class="nota" style="margin:0">O peso é registrado sozinho quando fica estável. Para calibrar: zere com a balança vazia, coloque um objeto de peso conhecido, informe o peso e toque em Calibrar.</p>
       <div class="botoes">
         <button class="btn" onclick="acao('/pesar')">Registrar pesagem</button>
         <button class="btn" onclick="acao('/tarar')">Zerar balança</button>
       </div>
-      <p class="botoes"><label class="chave"><input type="number" id="massa" value="100" min="1" step="0.1"> g</label><button class="btn" onclick="calibrar()">Calibrar</button></p>
-    </details>
+      <p class="botoes" style="margin:0"><label class="chave"><input type="number" id="massa" value="100" min="1" step="0.1"> g</label><button class="btn" onclick="calibrar()">Calibrar</button></p>
+      <div class="botoes"><a class="lk" href="/pesagens.csv">Baixar planilha (CSV)</a><button class="lk" onclick="limpar()">Apagar pesagens</button></div>
+    </div>
   </section>
 
-  <section class="cartao c5 o3">
+  <section class="cartao c5">
     <div class="cab"><h2 class="rot">Conexão</h2><span class="chip" id="iface">—</span></div>
     <div class="cab" style="align-items:flex-end">
       <div class="pilha"><span class="rot">Endereço</span><span class="ender mono" id="ip">—</span></div>
@@ -203,22 +282,7 @@ input[type=date]{min-height:44px;padding:0 10px;border:1px solid var(--linha);bo
     </div>
   </section>
 
-  <section class="cartao c5 o2">
-    <div class="cab"><h2 class="rot">Comedouro dos pais</h2><span class="chip marca" id="modo">—</span></div>
-    <div class="lado">
-      <div class="fig" id="comSvg"></div>
-      <div class="pilha" style="gap:12px">
-        <div class="pilha"><span class="rot">Comida no prato</span><span class="big" id="nivel">—</span><span class="nota" id="dist"></span></div>
-        <div class="pilha"><span class="rot">Comporta</span><span class="med" id="comporta">—</span></div>
-        <div class="pilha"><span class="rot">Próxima liberação automática</span><span class="med" id="proxima"></span></div>
-      </div>
-    </div>
-    <span class="nota" id="ultima"></span>
-    <label class="chave"><input type="checkbox" id="auto" onchange="acao('/auto?on='+(this.checked?1:0))"> Liberar comida automaticamente</label>
-    <button class="btn prim" id="btnLiberar" onclick="acao('/liberar')">Liberar comida</button>
-  </section>
-
-  <section class="cartao c7 o4">
+  <section class="cartao c12">
     <h2 class="rot" id="tTemp">Temperatura · desde que a página abriu</h2>
     <div id="gTemp"></div>
     <span class="nota" id="notaFaixa"></span>
@@ -226,44 +290,18 @@ input[type=date]{min-height:44px;padding:0 10px;border:1px solid var(--linha);bo
     <div id="gUmid"></div>
   </section>
 
-  <section class="cartao c7 o5">
-    <div class="cab"><h2 class="rot">Crescimento do filhote</h2><span class="med" id="resumoPeso"></span></div>
-    <div id="seloPeso" class="pilha" style="gap:8px"></div>
-    <div id="gPeso"></div>
-    <span class="nota" id="eixoPeso"></span>
-    <div class="leg" id="legPeso"></div>
-    <details id="ecl">
-      <summary id="eclTit">Informe a data de eclosão</summary>
-      <form class="form-ecl" onsubmit="salvarEclosao(event)">
-        <p class="nota" style="flex:1 1 100%;margin:0">Com a data de eclosão dá para ver a idade do filhote e comparar o peso com a faixa de referência.</p>
-        <label>Data de eclosão<input type="date" id="dataEcl" required></label>
-        <button class="btn prim">Salvar</button>
-        <span class="nota" id="eclMsg" role="status" style="flex:1 1 100%"></span>
-      </form>
-    </details>
-    <span class="nota" id="fontePeso"></span>
-    <span class="nota" id="notaPeso"></span>
-    <div class="botoes"><a class="lk" href="/pesagens.csv">Baixar planilha</a><button class="lk" onclick="limpar()">Apagar pesagens</button></div>
+  <section class="cartao c12" id="log">
+    <div class="cab-log"><h2>Log do sistema</h2><span class="sub">GET /logs a cada 10 s</span></div>
+    <div class="filtros" role="group" aria-label="Filtrar por nível">
+      <button aria-pressed="true" data-n="" onclick="filtrar(this)">Todos</button>
+      <button aria-pressed="false" data-n="ERRO" onclick="filtrar(this)">Erro</button>
+      <button aria-pressed="false" data-n="AVISO" onclick="filtrar(this)">Aviso</button>
+      <button aria-pressed="false" data-n="INFO" onclick="filtrar(this)">Info</button>
+    </div>
+    <div id="listaLog" style="display:grid;gap:14px"><p class="vazio">Carregando o log…</p></div>
+    <p class="rodape" id="rodapeLog"></p>
   </section>
-
-  <section class="cartao c5 o6 so-desk">
-    <div class="cab"><h2 class="rot">Últimos eventos</h2><button class="lk" onclick="mostrar('log')">Ver log completo</button></div>
-    <div id="ultimos"></div>
-  </section>
-
-  <p class="rodape c12 o7" id="rodape"></p>
-</main>
-
-<section id="log" role="tabpanel" aria-labelledby="abaLog" hidden>
-  <div class="cab-log"><h2>Log do sistema</h2><span class="sub">GET /logs a cada 10 s</span></div>
-  <div class="filtros" role="group" aria-label="Filtrar por nível">
-    <button aria-pressed="true" data-n="" onclick="filtrar(this)">Todos</button>
-    <button aria-pressed="false" data-n="ERRO" onclick="filtrar(this)">Erro</button>
-    <button aria-pressed="false" data-n="AVISO" onclick="filtrar(this)">Aviso</button>
-    <button aria-pressed="false" data-n="INFO" onclick="filtrar(this)">Info</button>
-  </div>
-  <div id="listaLog" style="display:grid;gap:14px"><p class="vazio">Carregando o log…</p></div>
-  <p class="rodape" id="rodapeLog"></p>
+  <p class="rodape c12" id="rodapeTec"></p>
 </section>
 <div id="toast" role="status" aria-live="polite"></div>
 
@@ -286,7 +324,7 @@ function duracao(s) {   // segundos -> "2,1 s", "42 s", "12 min", "3 h 05 min"
 // ---------------------------------------------------------------- estado
 let dados = null;                 // última resposta de /dados
 let logs = [], bootAtual = 0;     // /logs (mais recente primeiro)
-let conectado = false, tUltimaResposta = 0;
+let conectado = false, jaTentou = false, tUltimaResposta = 0;
 let versaoPesagens = -1, pesagens = [];
 // Histórico de temperatura e umidade: 1 ponto por minuto (a mesma taxa do
 // ESP32), janela de 6 h. Começa com o /historico do ESP32 e recebe um ponto
@@ -365,9 +403,9 @@ async function ciclo() {
 async function acao(url) {
   try {
     const r = await pedir(url, 'POST');
-    toast(r.j ? r.j.msg : 'O ESP32 respondeu com erro ' + r.status);   // inclusive o erro, ex.: "A comporta já está aberta"
+    toast(r.j ? r.j.msg : 'O ninho respondeu com erro ' + r.status);   // inclusive o erro, ex.: "A comporta já está aberta"
   } catch (e) {
-    toast('Não consegui falar com o ESP32');
+    toast('Não consegui falar com o ninho');
   }
   ciclo();
 }
@@ -408,7 +446,7 @@ async function carregarHistorico() {
   } catch (e) {}                  // falhou: segue só com o que chegar pelo /dados
 }
 function semResposta() {
-  conectado = false;
+  conectado = false; jaTentou = true;
   desenharPainel();
 }
 function receberLogs(j) {
@@ -417,57 +455,77 @@ function receberLogs(j) {
   novos = logs.length ? new Set(j.logs.filter(e => !antes.has(e.id)).map(e => e.id)) : new Set();
   const mudou = j.logs.length !== logs.length || (j.logs[0] && j.logs[0].id) !== (logs[0] && logs[0].id);
   logs = j.logs; bootAtual = j.boot_atual;
-  if (!$('log').hidden) marcarVistos();
+  if (!$('historico').hidden) marcarVistos();
   contarNaoVistos();
-  if (mudou) { desenharLog(); desenharUltimos(); }
+  if (mudou) { desenharLog(); desenharHistorico(); desenharUltimos(); }
   novos = new Set();
 }
 
 // ---------------------------------------------------------------- painel
 function desenharPainel() {
   document.body.classList.toggle('parado', !conectado);
-  $('vivo').classList.toggle('on', conectado);
-  $('vivoTxt').textContent = conectado ? 'Ao vivo · ' + ultimaLatencia() + ' ms' : 'Parado';
+  desenharCabecalho();
+  desenharResumo();
   desenharAvisos();
   desenharRede();
+  const btn = $('btnLiberar');      // só a falta de conexão bloqueia a liberação manual
+  btn.disabled = !conectado;
+  btn.textContent = conectado ? 'Liberar comida' : 'Liberar comida · sem conexão';
   const d = dados;
-  if (!d) { $('rodape').textContent = 'Ainda sem resposta do ESP32.'; return; }
-  $('ender').textContent = 'ESP32 · ' + d.ip;
+  if (!d) { $('rodape').textContent = 'Aguardando a primeira leitura do ninho…'; return; }
+  const quando = (conectado ? 'Atualizado às ' : 'Última leitura às ') + hms(new Date(tUltimaResposta));
+  $('rodape').textContent = quando;
+  $('rodapeTec').textContent = quando + (bootAtual ? ' · boot ' + bootAtual : '');
+  $('tecTopo').textContent = 'Informações técnicas do sistema (servidor HTTP no ESP32, porta ' + d.porta + ')';
 
-  // Ninho
+  // Filhote: temperatura com uma palavra; o peso vem da última pesagem
   const quente = d.temp != null && d.temp > d.temp_max, frio = d.temp != null && d.temp < d.temp_min;
-  $('temp').innerHTML = d.temp == null ? '—' : fmt(d.temp, 1) + ' <small>°C</small>';
-  $('temp').className = 'big' + (quente ? ' q' : frio ? ' f' : '');
-  $('faixa').textContent = 'ideal ' + fmt(d.temp_min, 0) + '–' + fmt(d.temp_max, 0) + ' °C';
-  $('umid').innerHTML = d.umid == null ? '—' : fmt(d.umid, 0) + ' <small>%</small>';
-  const pesando = d.balanca_ok && d.peso != null && d.peso >= 5;
-  $('peso').innerHTML = pesando ? fmt(d.peso, 1) + ' <small>g</small>' : '—';
-  $('pesoNota').textContent = !d.balanca_ok ? 'balança sem leitura' : pesando ? 'na balança' : 'balança vazia';
-  $('pesoNota').className = 'nota' + (d.balanca_ok ? '' : ' q');
-  const est = d.temp == null ? ['q', 'DHT22 sem leitura'] : quente ? ['q', 'Acima da faixa ideal'] :
-              frio ? ['f', 'Abaixo da faixa ideal'] : ['b', 'Dentro da faixa ideal'];
-  $('estTemp').className = 'estado ' + est[0];
-  $('estTemp').innerHTML = '<span class="ponto"></span>' + est[1];
+  const tc = quente ? ' q' : frio ? ' f' : '';
+  const tTxt = d.temp == null ? '—' : fmt(d.temp, 1) + ' <small>°C</small>';
+  $('temp').innerHTML = tTxt; $('temp').className = 'big' + tc;
+  const palavra = d.temp == null ? ['q', 'sensor sem resposta'] : quente ? ['q', 'quente demais'] :
+                  frio ? ['f', 'frio demais'] : ['b', 'boa'];
+  $('tempPalavra').className = 'med ' + palavra[0];
+  $('tempPalavra').textContent = palavra[1];
+  $('faixa').textContent = 'ideal entre ' + fmt(d.temp_min, 0) + ' e ' + fmt(d.temp_max, 0) + ' °C';
+  desenharPesoFilhote();
 
-  // Comedouro: nível = onde a distância medida fica entre "prato cheio" e "prato vazio"
+  // Comida: nível = onde a distância medida fica entre "prato cheio" e "prato vazio"
   let nivel = null;
   if (d.dist != null) nivel = Math.min(1, Math.max(0, (d.dist_vazio - d.dist) / (d.dist_vazio - d.dist_cheio)));
   $('modo').textContent = d.auto ? 'Automático' : 'Manual';
-  $('nivel').textContent = nivel == null ? '—' : Math.round(nivel * 100) + ' %';
-  $('nivel').className = 'big' + (d.vazio ? ' q' : '');
-  $('dist').textContent = d.dist == null ? 'sensor sem leitura' : 'sensor a ' + fmt(d.dist, 1) + ' cm da comida';
-  $('comporta').textContent = d.aberta ? 'Aberta' : 'Fechada';
+  $('nivel').textContent = palavraPrato(d, nivel);
+  $('nivel').className = 'big' + (d.vazio || nivel == null ? ' q' : '');
   // espera_s = quanto falta para a próxima liberação AUTOMÁTICA ser permitida.
   // Não bloqueia a liberação manual.
   $('proxima').textContent = !d.auto ? 'desligada' :
-    d.espera_s > 0 ? 'em ' + duracao(d.espera_s) : 'quando o prato esvaziar';
+    d.espera_s > 0 ? 'próxima em ' + duracao(d.espera_s) : 'quando o prato esvaziar';
   $('ultima').textContent = d.liberacoes > 0 ?
-    'Última liberação há ' + duracao(d.ultima_lib_ha_s) + ' (' + d.origem + ') · ' + d.liberacoes + ' desde que o ESP32 ligou' :
-    'Nenhuma liberação desde que o ESP32 ligou';
+    'Última liberação há ' + duracao(d.ultima_lib_ha_s) + (d.origem === 'manual' ? ' (por você)' : ' (automática)') :
+    'Nenhuma liberação desde que o ninho ligou';
   if (document.activeElement !== $('auto')) $('auto').checked = d.auto;
   desenharNinho();
   desenharComedouro(nivel);
   if ((d.eclosao || 0) !== eclAntes) desenharPeso();   // a data de eclosão mudou
+
+  // Técnico: sensores com os valores crus
+  $('tecTemp').innerHTML = tTxt; $('tecTemp').className = 'big' + tc;
+  $('tecFaixa').textContent = 'ideal ' + fmt(d.temp_min, 0) + '–' + fmt(d.temp_max, 0) + ' °C';
+  $('umid').innerHTML = d.umid == null ? '—' : fmt(d.umid, 0) + ' <small>%</small>';
+  const pesando = d.balanca_ok && d.peso != null && d.peso >= 5;
+  $('tecPeso').innerHTML = d.balanca_ok && d.peso != null ? fmt(d.peso, 1) + ' <small>g</small>' : '—';
+  $('tecPesoNota').textContent = !d.balanca_ok ? 'HX711 sem leitura' : pesando ? 'filhote na balança' : 'balança vazia';
+  $('tecPesoNota').className = 'nota' + (d.balanca_ok ? '' : ' q');
+  const est = d.temp == null ? ['q', 'DHT22 sem leitura'] : quente ? ['q', 'Acima da faixa ideal'] :
+              frio ? ['f', 'Abaixo da faixa ideal'] : ['b', 'Dentro da faixa ideal'];
+  $('estTemp').className = 'estado ' + est[0];
+  $('estTemp').innerHTML = '<span class="ponto"></span>' + est[1];
+  $('dist').textContent = d.dist == null ? 'HC-SR04 sem leitura' :
+    fmt(d.dist, 1) + ' cm · ' + (nivel == null ? '' : Math.round(nivel * 100) + ' % (cheio ' + fmt(d.dist_cheio, 0) + ' cm, vazio ' + fmt(d.dist_vazio, 0) + ' cm)');
+  $('dist').className = d.dist == null ? 'q' : '';
+  $('comporta').textContent = d.aberta ? 'Aberta' : 'Fechada';
+  $('nLib').textContent = d.liberacoes + (d.liberacoes > 0 ? ' · última há ' + duracao(d.ultima_lib_ha_s) + ' (' + d.origem + ')' : '');
+  $('nPes').textContent = pesagens.length + ' de 120';
 
   // Conexão
   const ap = d.interface === 'AP';
@@ -489,7 +547,73 @@ function desenharPainel() {
   $('rssi').textContent = ap ? 'RSSI não se aplica' : d.rssi + ' dBm';
 
   desenharGraficos();
-  $('rodape').textContent = (conectado ? 'Atualizado às ' : 'Última leitura às ') + hms(new Date(tUltimaResposta)) + (bootAtual ? ' · boot ' + bootAtual : '');
+}
+
+// Cabeçalho: só "Online" ou "Sem conexão com o ninho" (a latência fica no Técnico)
+function desenharCabecalho() {
+  const caiu = !conectado && jaTentou;
+  $('vivo').classList.toggle('on', conectado);
+  $('vivo').classList.toggle('caiu', caiu);
+  $('vivoTxt').textContent = conectado ? 'Online' : !caiu ? 'Conectando…' :
+    'Sem conexão com o ninho' + (tUltimaResposta ? ' · última leitura às ' + hms(new Date(tUltimaResposta)).slice(0, 5) : '');
+}
+
+function palavraPrato(d, nivel) {
+  if (nivel == null) return 'sem leitura';
+  return d.vazio ? 'vazio' : nivel < 0.35 ? 'acabando' : nivel < 0.75 ? 'pela metade' : 'cheio';
+}
+
+// Peso do cartão "Filhote": a última pesagem registrada, comparada com a
+// faixa de referência quando há data de eclosão (a mesma classificar() do gráfico)
+function desenharPesoFilhote() {
+  const d = dados, ecl = (d && d.eclosao) || 0;
+  const comData = pesagens.filter(p => p[0] > 0);
+  const u = comData[comData.length - 1] || pesagens[pesagens.length - 1];
+  let palavra = '', cls = '', nota = 'nenhuma pesagem ainda';
+  if (u) {
+    if (ecl && u[0] > 0 && u[0] >= ecl) {
+      const idade = (u[0] - ecl) / 86400, dias = Math.floor(idade), c = classificar(idade, u[1]);
+      const pd = dias === 1 ? '1 dia' : dias + ' dias';
+      palavra = { ok: 'dentro do esperado', abaixo: 'abaixo do esperado', acima: 'acima do esperado', sem: 'ainda sem referência' }[c] + ' para ' + pd;
+      cls = c === 'abaixo' ? 'q' : c === 'ok' ? 'b' : '';
+    }
+    nota = u[0] ? 'pesado em ' + ddmm(new Date(u[0] * 1000)) + ' às ' + hms(new Date(u[0] * 1000)).slice(0, 5) : 'última pesagem, sem data';
+    if (!ecl) nota += ' · informe a data de eclosão para comparar com o esperado';
+  }
+  if (d && !d.balanca_ok) { nota = 'balança sem resposta' + (u ? ' · ' + nota : ''); cls = cls || 'q'; }
+  $('peso').innerHTML = u ? fmt(u[1], 1) + ' <small>g</small>' : '—';
+  $('pesoPalavra').textContent = palavra;
+  $('pesoPalavra').className = 'med ' + cls;
+  $('pesoNota').textContent = nota;
+  $('pesoNota').className = 'nota' + (d && !d.balanca_ok ? ' q' : '');
+}
+
+// Resumo do topo da aba Ninho: "Tudo certo" ou a lista do que precisa de
+// atenção. Só reescreve quando o texto muda (leitor de tela).
+let resumoAntes = '';
+function desenharResumo() {
+  const d = dados, itens = [];
+  if (!conectado && jaTentou) {
+    itens.push(faixa('perdido', 'semWifi', 'Sem conexão com o ninho',
+      (tUltimaResposta ? 'Última leitura às ' + hms(new Date(tUltimaResposta)).slice(0, 5) + '. ' : '') +
+      'Pode ser falta de energia, o Wi-Fi de casa fora do ar ou este aparelho longe da rede. Tentando de novo sozinho.',
+      '<button class="btn" onclick="ciclo()">Tentar agora</button>'));
+  } else if (d) {
+    const ideal = 'O ideal é entre ' + fmt(d.temp_min, 0) + ' e ' + fmt(d.temp_max, 0) + ' °C.';
+    if (d.temp == null) itens.push(faixa('m', 'tri', 'Sensor de temperatura sem resposta', 'Não dá para saber a temperatura do ninho agora.'));
+    else if (d.temp > d.temp_max) itens.push(faixa('q', 'term', 'Ninho quente demais: ' + fmt(d.temp, 1) + ' °C', ideal));
+    else if (d.temp < d.temp_min) itens.push(faixa('f', 'term', 'Ninho frio demais: ' + fmt(d.temp, 1) + ' °C', ideal));
+    if (d.vazio) itens.push(faixa('q', 'tri', 'O prato de comida está vazio',
+      d.auto ? 'A liberação automática repõe assim que puder. Você também pode liberar agora.' : 'Toque em “Liberar comida” para repor.'));
+    if (d.dist == null) itens.push(faixa('m', 'tri', 'Sensor de comida sem resposta', 'Não dá para saber quanta comida tem no prato.'));
+    if (!d.balanca_ok) itens.push(faixa('m', 'tri', 'Balança sem resposta', 'O filhote não está sendo pesado.'));
+    if (d.modo_ap) itens.push(faixa('f', 'wifi', 'O ninho não está no Wi-Fi de casa', 'Ele continua cuidando do filhote e tenta se conectar de novo sozinho.'));
+  }
+  let h;
+  if (itens.length) h = (conectado ? '<h2 class="rot" style="margin:0 0 8px">Precisa de atenção</h2>' : '') + itens.join('');
+  else if (d) h = faixa('ok', 'ok', 'Tudo certo com o ninho', 'Temperatura boa, comida no prato e todos os sensores respondendo.');
+  else h = '<div class="av neutro" role="status"><div><b>Conectando ao ninho…</b></div></div>';
+  if (h !== resumoAntes) { $('resumo').innerHTML = h; resumoAntes = h; }
 }
 
 // Faixas de aviso no topo do painel. Só reescreve quando o texto muda,
@@ -498,11 +622,12 @@ const ICONES = {
   term: 'M14 14.8V5a2 2 0 1 0-4 0v9.8a4 4 0 1 0 4 0z',
   tri: 'M12 3 2 20h20L12 3zM12 10v4M12 17v.5',
   wifi: 'M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5v.5',
-  semWifi: 'M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5v.5M4 4l16 16'
+  semWifi: 'M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5v.5M4 4l16 16',
+  ok: 'M5 12.5l4.5 4.5L19 7'
 };
 let avisosAntes = '';
 function faixa(classe, icone, titulo, texto, extra) {
-  return '<div class="av ' + classe + '" role="' + (classe === 'm' || classe === 'f' ? 'status' : 'alert') + '">' +
+  return '<div class="av ' + classe + '" role="' + (classe === 'm' || classe === 'f' || classe === 'ok' ? 'status' : 'alert') + '">' +
     '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="' + ICONES[icone] + '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
     '<div><b>' + titulo + '</b>' + texto + '</div>' + (extra || '') + '</div>';
 }
@@ -527,9 +652,6 @@ function desenharAvisos() {
     if (d.modo_ap) h += faixa('f', 'wifi', 'Modo AP: rede própria do ESP32', 'O ESP32 não conectou ao roteador e continua tentando a cada 15 s.' + (d.hora_ok ? '' : ' O relógio está sem hora.'));
   }
   if (h !== avisosAntes) { $('avisos').innerHTML = h; avisosAntes = h; }
-  const btn = $('btnLiberar');      // só a falta de conexão bloqueia a liberação manual
-  btn.disabled = !conectado;
-  btn.textContent = conectado ? 'Liberar comida' : 'Liberar comida · sem conexão';
 }
 
 function ultimaLatencia() {
@@ -643,7 +765,7 @@ function desenharNinho() {
     '<g transform="translate(' + (term ? -12 : 30) + ',0)">' +
     '<rect x="76" y="174" width="188" height="10" rx="4" style="fill:var(--linha)"/>' +
     '<rect x="92" y="184" width="16" height="8" rx="2" fill="#d8ccbf"/><rect x="232" y="184" width="16" height="8" rx="2" fill="#d8ccbf"/>' +
-    '<text class="il-t" x="170" y="208" text-anchor="middle">balança (HX711)</text>' +
+    '<text class="il-t" x="170" y="208" text-anchor="middle">balança</text>' +
     '<ellipse cx="170" cy="112" rx="114" ry="24" fill="' + c.borda + '"' + tr + '/>' +
     '<ellipse cx="170" cy="110" rx="96" ry="16" fill="' + c.oco + '"' + tr + '/>' +
     '<ellipse cx="162" cy="102" rx="44" ry="30" fill="' + c.penas + '"' + tr + '/>' +
@@ -659,12 +781,12 @@ function desenharNinho() {
     '<path d="M62 104L36 62H14" style="fill:none;stroke:' + sens + ';stroke-width:1.2"/>' +
     '<rect x="56" y="98" width="15" height="19" rx="2.5" style="fill:#fff;stroke:' + sens + ';stroke-width:1.8"/>' +
     '<path d="M59 103H68M59 107H68M59 111H68" stroke="#a89c93"/>' +
-    '<text x="14" y="56" font-size="11" font-weight="600" style="fill:' + sens + '">' + (semT ? 'DHT22 · sem leitura' : 'sensor DHT22') + '</text>';
+    '<text x="14" y="56" font-size="11" font-weight="600" style="fill:' + sens + '">' + (semT ? 'sensor sem resposta' : 'sensor de temperatura') + '</text>';
   // Etiqueta do peso só na vista normal: na térmica ela ficaria embaixo da
   // seta da régua (o peso continua nos números logo abaixo do desenho)
   if (!term && !d.balanca_ok)
     s += '<rect x="250" y="26" width="92" height="30" rx="9" stroke-dasharray="4 3" style="fill:var(--cartao);stroke:var(--alerta);stroke-width:1.5"/>' +
-         '<text x="296" y="45" text-anchor="middle" font-size="11" font-weight="600" style="fill:var(--alerta-txt)">balança sem leitura</text>';
+         '<text x="296" y="45" text-anchor="middle" font-size="11" font-weight="600" style="fill:var(--alerta-txt)">balança sem resposta</text>';
   else if (!term && d.peso >= 5)
     s += '<path d="M224 62L262 46" style="stroke:var(--suave)"/><rect x="262" y="22" width="70" height="42" rx="9" style="fill:var(--cartao);stroke:var(--linha);stroke-width:1.5"/>' +
          '<text x="297" y="45" text-anchor="middle" font-size="18" font-weight="700" style="fill:var(--texto)">' + fmt(d.peso, 1) + ' g</text>' +
@@ -701,7 +823,7 @@ function desenharComedouro(nivel) {
   const h = Math.round((nivel || 0) * 40);   // o prato tem 40 de altura útil no desenho
   const yS = 214 - h;                         // superfície da comida
   let s = '<svg class="g" viewBox="0 0 220 240" width="100%" role="img" aria-label="Comedouro: ' +
-    (sem ? 'sensor de distância sem leitura' : Math.round(nivel * 100) + '% de comida no prato') + ', comporta ' + (d.aberta ? 'aberta' : 'fechada') + '">' +
+    (sem ? 'sensor de comida sem resposta' : 'prato ' + palavraPrato(d, nivel)) + ', comporta ' + (d.aberta ? 'aberta' : 'fechada') + '">' +
     '<defs><clipPath id="prato"><path d="M40 170H180L168 214H52Z"/></clipPath>' +
     '<pattern id="sementes" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.3" fill="#b9832f"/><circle cx="6" cy="6" r="1.3" fill="#b9832f"/></pattern></defs>' +
     '<rect x="60" y="6" width="80" height="64" rx="8" class="il-c" stroke-dasharray="4 3"/>' +
@@ -718,19 +840,18 @@ function desenharComedouro(nivel) {
     '<path d="M182 174H188M182 214H188" style="stroke:var(--suave)"/>' +
     '<text class="il-t" x="191" y="177">cheio</text>' +
     '<text x="191" y="217" font-size="11"' + (d.vazio ? ' font-weight="700" style="fill:var(--alerta-txt)"' : ' class="il-t"') + '>vazio</text>' +
-    // HC-SR04 em cima do prato, medindo a distância até a comida
-    '<text class="il-t" x="150" y="127" text-anchor="middle" font-size="9">HC-SR04</text>' +
+    // HC-SR04 em cima do prato, medindo a distância até a comida (os cm ficam no Técnico)
+    '<text class="il-t" x="150" y="127" text-anchor="middle" font-size="9">sensor</text>' +
     '<rect x="128" y="132" width="44" height="14" rx="3" style="fill:var(--frio)"/>' +
     '<circle cx="139" cy="139" r="5" fill="#dfe5ea"/><circle cx="161" cy="139" r="5" fill="#dfe5ea"/>';
-  if (sem) s += '<text x="150" y="162" text-anchor="middle" font-size="11" font-weight="600" style="fill:var(--alerta-txt)">sem leitura</text>';
+  if (sem) s += '<text x="150" y="162" text-anchor="middle" font-size="11" font-weight="600" style="fill:var(--alerta-txt)">sem resposta</text>';
   else s += '<path d="M150 147V' + (yS - 1) + '" stroke-width="1.5" stroke-dasharray="3 3" style="stroke:var(--frio)"/>' +
-    '<path d="M146 ' + (yS - 6) + 'L150 ' + (yS - 1) + 'L154 ' + (yS - 6) + '" stroke-width="1.5" style="fill:none;stroke:var(--frio)"/>' +
-    '<text x="145" y="' + Math.round((147 + yS) / 2 + 4) + '" text-anchor="end" font-size="11" font-weight="600" style="fill:var(--frio-txt)">' + fmt(d.dist, 1) + ' cm</text>';
+    '<path d="M146 ' + (yS - 6) + 'L150 ' + (yS - 1) + 'L154 ' + (yS - 6) + '" stroke-width="1.5" style="fill:none;stroke:var(--frio)"/>';
   $('comSvg').innerHTML = s + '</svg>';
 }
 
 function desenharGraficos() {
-  if (!dados || $('painel').hidden) return;
+  if (!dados || $('tecnico').hidden) return;
   const periodo = histDoEsp ? 'últimas 6 h' : 'desde que a página abriu';
   $('tTemp').textContent = 'Temperatura · ' + periodo;
   $('tUmid').textContent = 'Umidade · ' + periodo;
@@ -875,7 +996,8 @@ function desenharPeso() {
     (pts.some(p => p.cls === 'abaixo') ? '<span><span class="bola" style="margin:0"></span>Abaixo da faixa</span>' : '') +
     (nAcima ? '<span><span class="bola anel"></span>Acima da faixa</span>' : '');
   $('fontePeso').textContent = ecl ? 'Faixa: Ritchie, Harrison e Harrison, Avian Medicine (via Cockatiel Cottage), interpolada entre os pontos médios de cada intervalo.' : '';
-  $('notaPeso').textContent = sem ? sem + (sem > 1 ? ' pesagens sem data (epoch 0) não aparecem' : ' pesagem sem data (epoch 0) não aparece') + ' no gráfico.' : '';
+  $('notaPeso').textContent = sem ? sem + (sem > 1 ? ' pesagens sem data não aparecem' : ' pesagem sem data não aparece') + ' no gráfico.' : '';
+  desenharPesoFilhote();
 
   // Formulário da eclosão: aberto se a data não foi informada; só mexe
   // nele quando a data muda, para não fechar enquanto a pessoa digita
@@ -899,10 +1021,10 @@ async function salvarEclosao(ev) {
   try {
     const r = await pedir('/eclosao?t=' + t, 'POST');
     // 404 = o firmware ainda não tem essa rota: avisa sem quebrar o resto
-    $('eclMsg').textContent = r.status === 404 ? 'Data de eclosão ainda não suportada pelo firmware.' :
-      r.j ? r.j.msg : 'O ESP32 respondeu com erro ' + r.status + '.';
+    $('eclMsg').textContent = r.status === 404 ? 'Esta versão do ninho ainda não guarda a data de eclosão.' :
+      r.j ? r.j.msg : 'O ninho respondeu com erro ' + r.status + '.';
   } catch (e) {
-    $('eclMsg').textContent = 'Não consegui falar com o ESP32.';
+    $('eclMsg').textContent = 'Não consegui falar com o ninho.';
   }
   ciclo();
 }
@@ -950,22 +1072,99 @@ function desenharLog() {
   $('listaLog').innerHTML = h || '<p class="vazio">' + (logs.length ? 'Nenhum evento deste nível.' : 'Nenhum evento registrado ainda.') + '</p>';
   $('rodapeLog').textContent = 'Mostrando ' + logs.length + ' eventos guardados no ESP32';
 }
-function desenharUltimos() {
-  $('ultimos').innerHTML = logs.slice(0, 4).map(e => '<div class="ev">' + itemLog(e) + '<span>' + esc(e.msg) + '</span></div>').join('') ||
-    '<p class="vazio">Nenhum evento ainda.</p>';
-}
 function filtrar(b) {
   filtro = b.dataset.n;
   for (const x of document.querySelectorAll('.filtros button')) x.setAttribute('aria-pressed', x === b);
   desenharLog();
 }
-// Contador da aba Log: ERRO e AVISO com id maior que o último já visto
+
+// ---------------------------------------------------------------- histórico
+// O firmware grava mensagens técnicas na flash; a tradução para o dono do
+// ninho acontece só aqui. Cada regra reconhece o COMEÇO da mensagem e
+// reaproveita os números dela. Mensagens: registrarLog() no ninho_esp32.ino.
+// Eventos internos não aparecem (null); mensagem desconhecida volta como
+// está, para nada sumir sem querer.
+const INTERNOS = [/^ESP32 iniciado/, /^Hora acertada/, /^Entrou em modo AP/, /^Wi-Fi conectado/];
+const TRADUCOES = [
+  [/^Comida liberada \(manual\)/, () => 'Você liberou comida'],
+  [/^Comida liberada \(autom/, () => 'Comida liberada automaticamente'],
+  [/^Pesagem \S+ registrada: ([\d.,]+) g/, m => 'Filhote pesado: ' + m[1] + ' g'],
+  [/^Temperatura fora da faixa: (-?[\d.,]+) °C/, m => 'Ninho ' + (quenteDemais(m[1]) ? 'quente' : 'frio') + ' demais: ' + m[1] + ' °C'],
+  [/^Temperatura voltou à faixa(?:: (-?[\d.,]+) °C)?/, m => 'Temperatura do ninho voltou ao normal' + (m[1] ? ': ' + m[1] + ' °C' : '')],
+  [/^Wi-Fi perdido/, () => 'O ninho ficou sem internet'],
+  [/^Wi-Fi reconectado após (\d+) s/, m => 'O ninho voltou a se conectar (ficou ' + duracao(+m[1]) + ' sem internet)'],
+  [/^DHT22 sem leitura/, () => 'Sensor de temperatura sem resposta'],
+  [/^DHT22 voltou a responder/, () => 'Sensor de temperatura voltou a responder'],
+  [/^HX711 sem leitura/, () => 'Balança sem resposta'],
+  [/^HX711 voltou a responder/, () => 'Balança voltou a responder'],
+  [/^HC-SR04 sem leitura/, () => 'Sensor de comida sem resposta'],
+  [/^HC-SR04 voltou a responder/, () => 'Sensor de comida voltou a responder'],
+  [/^Reset por queda de tensão/, () => 'O ninho reiniciou por falta de energia'],
+  [/^Reset por (watchdog|travamento)/, () => 'O ninho reiniciou sozinho após uma falha'],
+  [/^Alimentação automática (ligada|desligada)/, m => 'Alimentação automática ' + m[1]],
+  [/^Data de eclosão salva/, () => 'Data de eclosão salva'],
+  [/^Pesagens apagadas \((\d+)\)/, m => 'Histórico de pesagens apagado (' + m[1] + (m[1] === '1' ? ' pesagem)' : ' pesagens)')],
+  [/^Balança tarada automaticamente/, () => 'Balança zerada automaticamente (primeira vez)'],
+  [/^Balança tarada/, () => 'Balança zerada'],
+  [/^Balança calibrada/, () => 'Balança calibrada'],   // o fator só interessa no Técnico
+];
+// "Fora da faixa" não diz o lado: decide pelo valor e pela faixa do /dados
+function quenteDemais(v) {
+  const t = parseFloat(v.replace(',', '.'));
+  const lo = dados ? dados.temp_min : 25, hi = dados ? dados.temp_max : 35;
+  return t > hi || (t >= lo && t >= (lo + hi) / 2);
+}
+function traduzirEvento(msg) {
+  if (INTERNOS.some(r => r.test(msg))) return null;
+  for (const [r, f] of TRADUCOES) { const m = msg.match(r); if (m) return f(m); }
+  return msg;
+}
+// Eventos que o dono do ninho vê, já traduzidos (mais recente primeiro)
+function eventosCliente() {
+  return logs.map(e => ({ e, txt: traduzirEvento(e.msg) })).filter(x => x.txt != null);
+}
+const SELOS = { ERRO: '<span class="selo atencao">Precisa de atenção</span>', AVISO: '<span class="selo aviso">Aviso</span>' };
+const DIAS_SEM = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+function nomeDia(t) {
+  if (!t) return 'Sem data';
+  const d = new Date(t * 1000), hoje = new Date(), dia = new Date(d);
+  hoje.setHours(0, 0, 0, 0); dia.setHours(0, 0, 0, 0);
+  const dif = Math.round((hoje - dia) / 86400000);
+  if (dif === 0) return 'Hoje';
+  if (dif === 1) return 'Ontem';
+  return DIAS_SEM[d.getDay()] + ', ' + ddmm(d) + (d.getFullYear() !== hoje.getFullYear() ? '/' + d.getFullYear() : '');
+}
+const horaEv = e => e.t ? hms(new Date(e.t * 1000)).slice(0, 5) : 'sem hora';
+function desenharHistorico() {
+  // Agrupa por dia, mantendo a ordem (mais recente primeiro)
+  const grupos = [];
+  for (const x of eventosCliente()) {
+    const dia = nomeDia(x.e.t);
+    if (!grupos.length || grupos[grupos.length - 1].dia !== dia) grupos.push({ dia, ev: [] });
+    grupos[grupos.length - 1].ev.push(x);
+  }
+  let h = '';
+  for (const g of grupos) {
+    h += '<section class="boot"><div><h3 class="rot">' + g.dia + '</h3><span class="nota">' + g.ev.length + (g.ev.length > 1 ? ' acontecimentos' : ' acontecimento') + '</span></div><ul>';
+    for (const x of g.ev) h += '<li' + (novos.has(x.e.id) ? ' class="novo"' : '') + '><div class="linha-ev"><span class="hora">' + horaEv(x.e) + '</span>' +
+      (SELOS[x.e.nivel] || '') + '</div><p>' + esc(x.txt) + '</p></li>';
+    h += '</ul></section>';
+  }
+  $('listaHist').innerHTML = h || '<p class="vazio">Nada aconteceu por aqui ainda.</p>';
+}
+function desenharUltimos() {
+  $('ultimos').innerHTML = eventosCliente().slice(0, 4).map(x => '<div class="ev"><div class="linha-ev">' + (SELOS[x.e.nivel] || '') +
+    '<span class="nota">' + nomeDia(x.e.t) + ' · ' + horaEv(x.e) + '</span></div><span>' + esc(x.txt) + '</span></div>').join('') ||
+    '<p class="vazio">Nada aconteceu por aqui ainda.</p>';
+}
+// Contador da aba Histórico: só "Precisa de atenção" e "Aviso" que o dono do
+// ninho veria (eventos internos não contam), com id maior que o último visto
 function contarNaoVistos() {
   if (logs.length && vistoAte > logs[0].id) vistoAte = 0;   // log apagado: os ids recomeçaram
-  const n = logs.filter(e => e.nivel !== 'INFO' && e.id > vistoAte).length;
+  const n = eventosCliente().filter(x => x.e.nivel !== 'INFO' && x.e.id > vistoAte).length;
   $('naoVistos').hidden = !n;
   $('naoVistos').textContent = n;
-  $('abaLog').setAttribute('aria-label', n ? 'Log, ' + n + ' erros ou avisos não vistos' : 'Log');
+  $('abaHist').setAttribute('aria-label', n ? 'Histórico, ' + n + (n > 1 ? ' avisos novos' : ' aviso novo') : 'Histórico');
 }
 function marcarVistos() {
   if (!logs.length) return;
@@ -974,13 +1173,12 @@ function marcarVistos() {
   contarNaoVistos();
 }
 
+const ABAS = { ninho: 'abaNinho', historico: 'abaHist', tecnico: 'abaTec' };
 function mostrar(aba) {
-  const log = aba === 'log';
-  $('painel').hidden = log; $('log').hidden = !log;
-  $('abaPainel').setAttribute('aria-selected', !log);
-  $('abaLog').setAttribute('aria-selected', log);
-  if (log) marcarVistos();
-  else { desenharGraficos(); desenharRede(); desenharPeso(); }
+  for (const p in ABAS) { $(p).hidden = p !== aba; $(ABAS[p]).setAttribute('aria-selected', p === aba); }
+  if (aba === 'historico') marcarVistos();
+  if (aba === 'ninho') desenharPeso();      // gráficos medem a largura: só desenham visíveis
+  if (aba === 'tecnico') { desenharGraficos(); desenharRede(); }
   window.scrollTo(0, 0);
 }
 
