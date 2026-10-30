@@ -711,6 +711,17 @@ input[type=number]{font:inherit;width:100px;min-height:44px;padding:0 8px;border
 .vistas button[aria-pressed=true]{background:var(--cartao);color:var(--texto);font-weight:700;box-shadow:0 1px 2px rgba(43,36,32,.12)}
 .vistas button:disabled{opacity:.45;cursor:default}
 #ninhoSvg svg{max-width:440px;margin:0 auto}
+#gPeso{position:relative;touch-action:pan-y}
+.sobre{position:absolute;left:12%;right:12%;top:22%;display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 12px;border-radius:12px;background:var(--cartao);border:1px solid var(--linha);text-align:center;font-size:12px;color:var(--suave)}
+.sobre b{font-size:14px;color:var(--texto)}
+.cartao .av{margin:0}
+.av.neutro{background:var(--neutro-bg);font-size:13px;align-items:center}
+.bola{width:10px;height:10px;border-radius:50%;flex:none;margin-top:4px;background:var(--alerta)}
+.bola.anel{background:none;border:2px solid var(--texto);margin-top:0}
+.leg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px}.leg span{display:flex;align-items:center;gap:6px}
+.form-ecl{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px;padding:12px;border-radius:12px;background:var(--fundo);margin-top:8px}
+.form-ecl label{display:flex;flex-direction:column;gap:4px;flex:1 1 150px;font-size:12px;font-weight:600;color:var(--suave)}
+input[type=date]{min-height:44px;padding:0 10px;border:1px solid var(--linha);border-radius:10px;background:var(--cartao);color:var(--texto);font:inherit;font-size:14px}
 .legenda{display:flex;align-items:center;gap:8px;margin:0}
 #corLeg{width:12px;height:12px;border-radius:3px;flex:none}
 .lado{display:flex;gap:14px;align-items:flex-start}
@@ -837,8 +848,21 @@ input[type=number]{font:inherit;width:100px;min-height:44px;padding:0 8px;border
   </section>
 
   <section class="cartao c7 o5">
-    <div class="cab"><h2 class="rot">Crescimento do filhote</h2><span class="nota">peso por dia</span></div>
+    <div class="cab"><h2 class="rot">Crescimento do filhote</h2><span class="med" id="resumoPeso"></span></div>
+    <div id="seloPeso" class="pilha" style="gap:8px"></div>
     <div id="gPeso"></div>
+    <span class="nota" id="eixoPeso"></span>
+    <div class="leg" id="legPeso"></div>
+    <details id="ecl">
+      <summary id="eclTit">Informe a data de eclosão</summary>
+      <form class="form-ecl" onsubmit="salvarEclosao(event)">
+        <p class="nota" style="flex:1 1 100%;margin:0">Com a data de eclosão dá para ver a idade do filhote e comparar o peso com a faixa de referência.</p>
+        <label>Data de eclosão<input type="date" id="dataEcl" required></label>
+        <button class="btn prim">Salvar</button>
+        <span class="nota" id="eclMsg" role="status" style="flex:1 1 100%"></span>
+      </form>
+    </details>
+    <span class="nota" id="fontePeso"></span>
     <span class="nota" id="notaPeso"></span>
     <div class="botoes"><a class="lk" href="/pesagens.csv">Baixar planilha</a><button class="lk" onclick="limpar()">Apagar pesagens</button></div>
   </section>
@@ -915,9 +939,10 @@ async function buscar(url, metodo) {
   rede.total++;
   try {
     const r = await fetch(url, { method: metodo || 'GET', cache: 'no-store', signal: ctrl.signal });
-    const j = await r.json();
+    // Só lê JSON quando a resposta é JSON: um 404 do ESP32 vem em texto
+    const j = (r.headers.get('content-type') || '').includes('json') ? await r.json() : null;
     guardarLatencia(performance.now() - t0);
-    return { ok: r.ok, j };
+    return { ok: r.ok, status: r.status, j };
   } catch (e) {
     rede.falhas++;
     guardarLatencia(null);
@@ -961,7 +986,7 @@ async function ciclo() {
 async function acao(url) {
   try {
     const r = await pedir(url, 'POST');
-    toast(r.j.msg);               // inclusive o erro, ex.: "A comporta já está aberta"
+    toast(r.j ? r.j.msg : 'O ESP32 respondeu com erro ' + r.status);   // inclusive o erro, ex.: "A comporta já está aberta"
   } catch (e) {
     toast('Não consegui falar com o ESP32');
   }
@@ -1063,6 +1088,7 @@ function desenharPainel() {
   if (document.activeElement !== $('auto')) $('auto').checked = d.auto;
   desenharNinho();
   desenharComedouro(nivel);
+  if ((d.eclosao || 0) !== eclAntes) desenharPeso();   // a data de eclosão mudou
 
   // Conexão
   const ap = d.interface === 'AP';
@@ -1343,14 +1369,174 @@ function desenharGraficos() {
   $('notaFaixa').textContent = 'Faixa verde = ideal (' + fmt(dados.temp_min, 0) + '–' + fmt(dados.temp_max, 0) + ' °C), informada pelo ESP32. Lacuna na linha = sem leitura.';
 }
 
+// ---------------------------------------------------------------- crescimento
+// Faixa de referência de peso de calopsita por idade: Ritchie, Harrison e
+// Harrison, "Avian Medicine" (via Cockatiel Cottage). A tabela dá intervalos
+// de dias; aqui entra o ponto médio de cada intervalo (dias) com o peso
+// mínimo e o máximo (g).
+const REF_DIAS = [4.5, 10.5, 17.5, 24.5, 31.5, 38.5, 45.5, 52.5];
+const REF_MIN = [5, 12, 45, 72, 80, 80, 80, 90];
+const REF_MAX = [12, 45, 72, 108, 120, 90, 95, 110];
+
+// Interpolação monotônica (Fritsch–Carlson): curva suave que passa pelos
+// pontos da tabela e nunca passa do maior nem do menor valor entre dois
+// pontos vizinhos (uma spline comum poderia "inventar" um pico que a tabela
+// não tem). Antes de 4,5 dias não há referência; depois de 52,5 segue reta.
+function monotonica(xs, ys) {
+  const n = xs.length, m = [], t = [];
+  for (let i = 0; i < n - 1; i++) m.push((ys[i + 1] - ys[i]) / (xs[i + 1] - xs[i]));   // inclinação de cada trecho
+  t[0] = m[0]; t[n - 1] = m[n - 2];
+  for (let i = 1; i < n - 1; i++) t[i] = m[i - 1] * m[i] <= 0 ? 0 : (m[i - 1] + m[i]) / 2;   // pico ou vale: tangente zero
+  for (let i = 0; i < n - 1; i++) {      // limita as tangentes para a curva não passar dos pontos
+    if (m[i] === 0) { t[i] = t[i + 1] = 0; continue; }
+    const a = t[i] / m[i], b = t[i + 1] / m[i], s = a * a + b * b;
+    if (s > 9) { const k = 3 / Math.sqrt(s); t[i] = k * a * m[i]; t[i + 1] = k * b * m[i]; }
+  }
+  return x => {
+    if (x < xs[0]) return null;
+    if (x >= xs[n - 1]) return ys[n - 1];
+    let i = 0; while (x > xs[i + 1]) i++;
+    const h = xs[i + 1] - xs[i], u = (x - xs[i]) / h, u2 = u * u, u3 = u2 * u;   // polinômio de Hermite cúbico
+    return (2 * u3 - 3 * u2 + 1) * ys[i] + (u3 - 2 * u2 + u) * h * t[i] + (-2 * u3 + 3 * u2) * ys[i + 1] + (u3 - u2) * h * t[i + 1];
+  };
+}
+const refMin = monotonica(REF_DIAS, REF_MIN), refMax = monotonica(REF_DIAS, REF_MAX);
+// Classifica com a MESMA curva que é desenhada: o ponto nunca parece dentro
+// da faixa no gráfico e sai classificado como fora (ou o contrário)
+function classificar(idade, g) {
+  const lo = refMin(idade);
+  if (lo == null) return 'sem';          // antes de 4,5 dias: sem classificação
+  return g < lo ? 'abaixo' : g > refMax(idade) ? 'acima' : 'ok';
+}
+
+let selPeso = -1, geoPeso = null, eclAntes = -1;
 function desenharPeso() {
+  const ecl = (dados && dados.eclosao) || 0;   // o firmware atual não manda o campo: "não informada"
   // Epoch 0 = pesagem feita antes de o ESP32 saber a hora: sem data, não dá para plotar
   const comData = pesagens.filter(p => p[0] > 0), sem = pesagens.length - comData.length;
-  grafico($('gPeso'), comData.map(p => ({ x: p[0] * 1000, y: p[1] })), {
-    H: 160, cor: 'temp', folga: 5, casas: 0, pontos: true,
-    vazio: 'Nenhuma pesagem ainda. Coloque o filhote na balança.', aria: 'Peso do filhote, ' + comData.length + ' pesagens',
-    rotX: ms => ddmm(new Date(ms)), rotFim: (x, u) => ddmm(new Date(x)) + ' · ' + fmt(u.y, 1) + ' g' });
-  $('notaPeso').textContent = sem ? sem + (sem > 1 ? ' pesagens sem data não aparecem' : ' pesagem sem data não aparece') + ' no gráfico.' : '';
+  const pts = comData.map(p => {
+    const idade = ecl ? (p[0] - ecl) / 86400 : null;
+    return { t: p[0], g: p[1], idade, cls: ecl ? classificar(idade, p[1]) : 'sem' };
+  });
+  const el = $('gPeso'), W = Math.max(el.clientWidth, 260), H = W > 500 ? 270 : 230;
+  const m = { l: 34, r: 10, t: 12, b: 22 };
+  // Eixo X: idade em dias (com a data de eclosão) ou data da pesagem (sem ela)
+  const vx = p => ecl ? p.idade : p.t;
+  let x0 = 0, x1 = 56;
+  if (ecl) { x0 = Math.min(0, ...pts.map(p => Math.floor(p.idade))); x1 = Math.max(56, ...pts.map(p => Math.ceil(p.idade / 7) * 7)); }
+  else if (pts.length) { x0 = pts[0].t; x1 = pts[pts.length - 1].t; if (x1 === x0) { x0 -= 86400; x1 += 86400; } }
+  const X = v => +(m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r)).toFixed(1);
+  const topo = Math.max(130, Math.ceil((Math.max(0, ...pts.map(p => p.g)) + 10) / 30) * 30);
+  const Y = g => +(m.t + (1 - g / topo) * (H - m.t - m.b)).toFixed(1);
+  const txt = (x, y, t, a) => '<text class="g-eixo" x="' + x + '" y="' + y + '" text-anchor="' + (a || 'middle') + '">' + t + '</text>';
+
+  let s = '<svg class="g" viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="' + H + '" role="img" aria-label="' +
+    (pts.length ? 'Peso do filhote, ' + pts.length + ' pesagens' + (ecl ? ', com faixa de referência por idade' : '') : 'Gráfico de peso vazio') + '">';
+  for (let g = 0; g <= topo - 10; g += 30)
+    s += '<path class="g-grade" d="M' + m.l + ' ' + Y(g) + 'H' + (W - m.r) + '"/>' + txt(m.l - 6, Y(g) + 4, g + (g + 30 > topo - 10 ? ' g' : ''), 'end');
+  if (ecl) {
+    // Faixa de referência, de 4,5 dias até o fim do eixo, de meio em meio dia
+    const cima = [], baixo = [];
+    for (let d = 4.5; d <= x1; d += 0.5) { cima.push(X(d) + ' ' + Y(refMax(d))); baixo.push(X(d) + ' ' + Y(refMin(d))); }
+    s += '<path class="g-faixa" d="M' + cima.join('L') + 'L' + baixo.reverse().join('L') + 'Z"/>';
+    // A própria tabela tem uma queda de peso perto da 5ª semana. A nota fica
+    // ACIMA da faixa, onde não cai nenhum ponto "abaixo da faixa".
+    const a = X(38.5), b = X(49), y = Y(102), mx = ((a + b) / 2).toFixed(1);
+    s += '<path d="M' + a + ' ' + (y + 4) + 'V' + y + 'H' + b + 'V' + (y + 4) + '" style="fill:none;stroke:var(--suave)"/>' +
+         '<text class="g-eixo" x="' + mx + '" y="' + (y - 18) + '" text-anchor="middle" font-style="italic">perda normal ao</text>' +
+         '<text class="g-eixo" x="' + mx + '" y="' + (y - 6) + '" text-anchor="middle" font-style="italic">começar a voar</text>';
+    const passo = W < 400 && x1 - x0 > 56 ? 14 : 7;
+    for (let d = Math.ceil(x0 / 7) * 7; d <= x1; d += passo) s += txt(X(d), H - 6, d);
+  } else if (pts.length) {
+    for (let i = 0; i < 4; i++) { const t = x0 + i * (x1 - x0) / 3; s += txt(X(t), H - 6, ddmm(new Date(t * 1000)), ['start', 'middle', 'middle', 'end'][i]); }
+  }
+  // Linha e pontos: abaixo da faixa em --alerta; acima com destaque neutro (anel)
+  s += '<path class="g-linha temp" style="fill:none;stroke-width:2.5" d="' + pts.map((p, i) => (i ? 'L' : 'M') + X(vx(p)) + ' ' + Y(p.g)).join('') + '"/>';
+  for (const p of pts) {
+    const c = ' cx="' + X(vx(p)) + '" cy="' + Y(p.g) + '"';
+    if (p.cls === 'abaixo') s += '<circle' + c + ' r="9" style="fill:var(--alerta);opacity:.22"/><circle' + c + ' r="5" style="fill:var(--alerta);stroke:var(--cartao);stroke-width:1.5"/>';
+    else if (p.cls === 'acima') s += '<circle' + c + ' r="4" style="fill:var(--cartao);stroke:var(--texto);stroke-width:2"/>';
+    else s += '<circle' + c + ' r="3.5" style="fill:var(--marca);stroke:var(--cartao);stroke-width:1.5"/>';
+  }
+  // Pesagem selecionada (mouse ou toque): guia, anel e caixa com os detalhes
+  const sel = pts[selPeso];
+  if (sel) {
+    const px = X(vx(sel)), py = Y(sel.g), tw = 196;
+    const bx = Math.max(m.l, Math.min(W - m.r - tw, px - tw / 2));
+    const by = py - 76 < m.t ? py + 14 : py - 76;
+    const dt = new Date(sel.t * 1000);
+    const l1 = ddmm(dt) + '/' + dt.getFullYear() + (ecl ? ' · ' + Math.floor(sel.idade) + ' dias' : '');
+    const l2 = fmt(sel.g, 1) + ' g' + ({ ok: ' · dentro da faixa', abaixo: ' · abaixo da faixa', acima: ' · acima da faixa' }[sel.cls] || '');
+    const l3 = sel.cls === 'sem' ? '' : 'esperado: ' + Math.round(refMin(sel.idade)) + ' a ' + Math.round(refMax(sel.idade)) + ' g';
+    s += '<path d="M' + px + ' ' + m.t + 'V' + (H - m.b) + '" stroke-dasharray="3 3" style="stroke:var(--suave)"/>' +
+      '<circle cx="' + px + '" cy="' + py + '" r="7" style="fill:none;stroke:var(--marca);stroke-width:2"/>' +
+      '<rect x="' + bx + '" y="' + by + '" width="' + tw + '" height="62" rx="8" style="fill:var(--texto)"/>' +
+      '<text x="' + (bx + 10) + '" y="' + (by + 17) + '" font-size="11" style="fill:var(--cartao)">' + l1 + '</text>' +
+      '<text x="' + (bx + 10) + '" y="' + (by + 36) + '" font-size="14" font-weight="700" style="fill:var(--cartao)">' + l2 + '</text>' +
+      '<text x="' + (bx + 10) + '" y="' + (by + 53) + '" font-size="11" style="fill:var(--cartao)">' + l3 + '</text>';
+  }
+  el.innerHTML = s + '</svg>' + (pts.length ? '' :
+    '<div class="sobre"><b>Nenhuma pesagem ainda</b>Quando o filhote for pesado na balança, o primeiro ponto aparece aqui.</div>');
+  geoPeso = { W, xs: pts.map(p => X(vx(p))) };
+
+  // Selo: "abaixo do esperado" só se a ÚLTIMA pesagem estiver abaixo
+  const ult = pts[pts.length - 1], nAcima = pts.filter(p => p.cls === 'acima').length;
+  let selo = '';
+  if (ult && ult.cls === 'abaixo')
+    selo += '<div class="av q" role="status"><span class="bola"></span><div><b>Abaixo do esperado para ' + Math.floor(ult.idade) + ' dias</b>' +
+      fmt(ult.g, 1) + ' g na última pesagem; a referência nessa idade vai de ' + Math.round(refMin(ult.idade)) + ' a ' + Math.round(refMax(ult.idade)) + ' g.</div></div>';
+  if (nAcima)
+    selo += '<div class="av neutro" role="status"><span class="bola anel"></span><span><b>' + nAcima + (nAcima > 1 ? ' pesagens acima' : ' pesagem acima') +
+      ' da faixa de referência.</b> Não indica problema por si só.</span></div>';
+  $('seloPeso').innerHTML = selo;
+  $('resumoPeso').textContent = !ult ? '' : (ecl ? Math.floor(ult.idade) + ' dias · ' : 'última: ' + ddmm(new Date(ult.t * 1000)) + ' · ') + fmt(ult.g, 1) + ' g';
+  $('eixoPeso').textContent = ecl ? 'Idade em dias desde a eclosão · marcações por semana' : 'Data da pesagem (sem a data de eclosão não dá para calcular a idade)';
+  $('legPeso').innerHTML = '<span><svg width="22" height="10" aria-hidden="true"><path d="M1 5H21" style="stroke:var(--marca);stroke-width:2.5"/><circle cx="11" cy="5" r="3.5" style="fill:var(--marca)"/></svg>Peso do filhote</span>' +
+    (ecl ? '<span><svg width="22" height="10" aria-hidden="true"><rect width="22" height="10" rx="2" class="g-faixa" style="opacity:.3"/></svg>Faixa de referência (Ritchie et al.)</span>' : '') +
+    (pts.some(p => p.cls === 'abaixo') ? '<span><span class="bola" style="margin:0"></span>Abaixo da faixa</span>' : '') +
+    (nAcima ? '<span><span class="bola anel"></span>Acima da faixa</span>' : '');
+  $('fontePeso').textContent = ecl ? 'Faixa: Ritchie, Harrison e Harrison, Avian Medicine (via Cockatiel Cottage), interpolada entre os pontos médios de cada intervalo.' : '';
+  $('notaPeso').textContent = sem ? sem + (sem > 1 ? ' pesagens sem data (epoch 0) não aparecem' : ' pesagem sem data (epoch 0) não aparece') + ' no gráfico.' : '';
+
+  // Formulário da eclosão: aberto se a data não foi informada; só mexe
+  // nele quando a data muda, para não fechar enquanto a pessoa digita
+  if (ecl !== eclAntes) {
+    eclAntes = ecl;
+    $('ecl').open = !ecl;
+    if (ecl) {
+      const d = new Date(ecl * 1000);
+      $('eclTit').textContent = 'Eclosão em ' + ddmm(d) + '/' + d.getFullYear() + ' · alterar';
+      $('dataEcl').value = d.getFullYear() + '-' + dois(d.getMonth() + 1) + '-' + dois(d.getDate());
+    } else $('eclTit').textContent = 'Informe a data de eclosão';
+  }
+}
+
+async function salvarEclosao(ev) {
+  ev.preventDefault();                       // o formulário não navega: quem envia é o fetch
+  const [a, m, d] = $('dataEcl').value.split('-').map(Number);
+  const t = Math.floor(new Date(a, m - 1, d).getTime() / 1000);   // meia-noite, horário local
+  if (!(t > 0)) return;
+  if (t > Date.now() / 1000) { $('eclMsg').textContent = 'A data de eclosão não pode estar no futuro.'; return; }
+  try {
+    const r = await pedir('/eclosao?t=' + t, 'POST');
+    // 404 = o firmware ainda não tem essa rota: avisa sem quebrar o resto
+    $('eclMsg').textContent = r.status === 404 ? 'Data de eclosão ainda não suportada pelo firmware.' :
+      r.j ? r.j.msg : 'O ESP32 respondeu com erro ' + r.status + '.';
+  } catch (e) {
+    $('eclMsg').textContent = 'Não consegui falar com o ESP32.';
+  }
+  ciclo();
+}
+
+// Mouse ou toque em qualquer parte do gráfico seleciona a pesagem mais
+// próxima no eixo X (no celular não dá para acertar um ponto de 7 px)
+function escolherPeso(e) {
+  if (!geoPeso || !geoPeso.xs.length) return;
+  const r = $('gPeso').getBoundingClientRect();
+  const x = (e.clientX - r.left) * geoPeso.W / r.width;
+  let melhor = 0;
+  geoPeso.xs.forEach((v, i) => { if (Math.abs(v - x) < Math.abs(geoPeso.xs[melhor] - x)) melhor = i; });
+  if (melhor !== selPeso) { selPeso = melhor; desenharPeso(); }
 }
 
 // ---------------------------------------------------------------- log
@@ -1420,6 +1606,11 @@ function mostrar(aba) {
 }
 
 window.addEventListener('resize', () => { desenharGraficos(); desenharRede(); desenharPeso(); });
+$('gPeso').addEventListener('pointermove', escolherPeso);
+$('gPeso').addEventListener('pointerdown', escolherPeso);
+// O mouse saiu: tira a seleção. No toque não (o pointerleave vem logo
+// depois de levantar o dedo e apagaria o que a pessoa acabou de tocar).
+$('gPeso').addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') { selPeso = -1; desenharPeso(); } });
 (async () => {
   // Acerta o relógio do ESP32 com o do navegador, caso ele esteja sem internet
   try { await pedir('/hora?ts=' + Math.floor(Date.now() / 1000)); } catch (e) {}

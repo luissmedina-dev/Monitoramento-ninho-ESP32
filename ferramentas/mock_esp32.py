@@ -10,6 +10,8 @@ Uso (precisa só de Python 3, sem instalar nada):
     python mock_esp32.py --cenario ap         -> ESP32 em modo AP
     python mock_esp32.py --cenario falhas     -> sensores falhando às vezes
     python mock_esp32.py --ino ../ninho_esp32.ino --porta 8000
+    python mock_esp32.py --sem-eclosao        -> como o firmware atual: /dados sem
+                                                 "eclosao" e POST /eclosao dá 404
 
 Depois abra http://localhost:8000 e recarregue a página (F5) a cada
 mudança que fizer no HTML/CSS/JS do .ino.
@@ -28,7 +30,9 @@ MILLIS = lambda: int((time.time() - INICIO) * 1000)
 estado = {
     "auto": True, "liberacoes": 0, "ultima_lib": 0, "t_ultima_lib": None,
     "origem": "", "pesagens_ver": 0, "dist_base": 4.0, "reconexoes": 1,
+    "eclosao": 0,  # data de eclosão (epoch em s); 0 = não informada
 }
+COM_ECLOSAO = True  # --sem-eclosao desliga o campo e a rota (firmware atual)
 pesagens = [[AGORA() - d * 86400, 40 + (7 - d) * 3.2] for d in range(7, 0, -1)]
 BOOT = 14
 logs = []  # do mais antigo para o mais novo; /logs devolve invertido
@@ -81,7 +85,7 @@ def dados(cenario):
     espera = 0
     if estado["t_ultima_lib"]:
         espera = max(0, 300 - int(time.time() - estado["t_ultima_lib"]))
-    return {
+    d = {
         "temp": temp, "umid": None if temp is None else 55,
         "temp_min": 25.0, "temp_max": 35.0,
         "peso": peso, "balanca_ok": balanca_ok,
@@ -99,6 +103,9 @@ def dados(cenario):
         "porta": 80, "conectado": not ap,
         "uptime_s": int(time.time() - INICIO), "reconexoes": estado["reconexoes"],
     }
+    if COM_ECLOSAO:
+        d["eclosao"] = estado["eclosao"]
+    return d
 
 
 def historico():
@@ -126,6 +133,17 @@ def acao(caminho, q):
         log("INFO", "Balança tarada"); return True, "Balança zerada"
     if caminho == "/calibrar":
         log("INFO", "Balança calibrada (fator 421,7)"); return True, "Balança calibrada (fator 421,7)"
+    if caminho == "/eclosao" and COM_ECLOSAO:
+        # Mesmas validações que o firmware precisa ter (ver a entrega da fase 3)
+        try:
+            t = int(q.get("t", [""])[0])
+        except ValueError:
+            return False, "Informe a data de eclosão (t = epoch em segundos)"
+        if t < 1700000000 or t > AGORA() + 86400:
+            return False, "Data de eclosão inválida"
+        estado["eclosao"] = t
+        log("INFO", "Data de eclosão salva")
+        return True, "Data de eclosão salva"
     if caminho == "/limpar":
         log("AVISO", f"Pesagens apagadas ({len(pesagens)})")
         pesagens.clear(); estado["pesagens_ver"] += 1
@@ -183,7 +201,9 @@ if __name__ == "__main__":
     p.add_argument("--ino", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "ninho_esp32.ino"))
     p.add_argument("--porta", type=int, default=8000)
     p.add_argument("--cenario", choices=["normal", "ap", "falhas"], default="normal")
+    p.add_argument("--sem-eclosao", action="store_true", help="simula o firmware atual, sem eclosao")
     a = p.parse_args()
+    COM_ECLOSAO = not a.sem_eclosao
     logs_iniciais(a.cenario)
     srv = ThreadingHTTPServer(("127.0.0.1", a.porta), Handler)
     srv.ino, srv.cenario = os.path.abspath(a.ino), a.cenario
