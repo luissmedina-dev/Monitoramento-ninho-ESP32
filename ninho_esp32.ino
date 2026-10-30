@@ -632,226 +632,613 @@ const char PAGINA[] PROGMEM = R"rawliteral(
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ninho do filhote</title>
 <style>
-:root{--fundo:#f6f1ea;--cartao:#fff;--texto:#2b2420;--suave:#7a6e66;--linha:#e9e0d6;--marca:#c4622d;--ok:#3f8a5c;--alerta:#c4412a;--frio:#3d6fa8;--okf:#e3f1e8;--alertaf:#fbe4dd;--friof:#e3ecf7}
-@media (prefers-color-scheme:dark){:root{--fundo:#1b1714;--cartao:#26201c;--texto:#f1e9e2;--suave:#a89c93;--linha:#3a312b;--okf:#1f3a2a;--alertaf:#4a2219;--friof:#1d2f45;--ok:#7fc79a;--alerta:#f08a72;--frio:#8ab4e8}}
+/* Cores do design. --suave2 e --ok-txt existem por contraste: texto pequeno
+   precisa de 4,5:1, e --suave sobre --fundo dá só 4,37:1. */
+:root{--fundo:#f6f1ea;--cartao:#fff;--texto:#2b2420;--suave:#7a6e66;--suave2:#6b5f57;--linha:#e9e0d6;--marca:#c4622d;--botao:#c4622d;
+--ok:#3f8a5c;--ok-txt:#2f7049;--alerta:#c4412a;--alerta-txt:#9e321f;--alerta-bg:#fbe9e5;--frio:#3d6fa8;--frio-txt:#2c5584;--frio-bg:#e6eef7;
+--marca-txt:#9a4a1f;--marca-bg:#f8ebe2;--neutro-bg:#efe9e3;--info-txt:#5a4f48}
+@media (prefers-color-scheme:dark){:root{color-scheme:dark;--fundo:#1b1714;--cartao:#26201c;--texto:#f1e9e2;--suave:#a89c93;--suave2:#a89c93;--linha:#3a312b;--marca:#e0874f;
+--ok:#7fc79a;--ok-txt:#7fc79a;--alerta:#f08a72;--alerta-txt:#f08a72;--alerta-bg:#3a2620;--frio:#8ab4e8;--frio-txt:#8ab4e8;--frio-bg:#1d2f45;
+--marca-txt:#e0874f;--marca-bg:#3a2a20;--neutro-bg:#322a25;--info-txt:#c9bdb4}}
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--fundo);color:var(--texto)}
-header,main{max-width:980px;margin:0 auto;padding-left:16px;padding-right:16px}
-header{padding-top:20px;padding-bottom:6px}
-h1{font-size:1.5rem;margin:0}
-#estado{color:var(--suave);font-size:.85rem;margin-top:4px}
-main{padding-top:8px;padding-bottom:32px;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}
-.cartao{background:var(--cartao);border:1px solid var(--linha);border-radius:14px;padding:16px;min-width:0}
-.largo{grid-column:1/-1}
-.rotulo{font-size:.76rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--suave)}
-.valor{font-size:2.4rem;font-weight:700;margin:6px 0 2px;font-variant-numeric:tabular-nums}
-.valor small{font-size:1rem;font-weight:500;color:var(--suave)}
-.info{font-size:.9rem;color:var(--suave);margin:4px 0}
-.info b{color:var(--texto)}
-.selo{display:inline-block;margin-top:6px;padding:3px 10px;border-radius:99px;font-size:.8rem;font-weight:600;background:var(--linha)}
-.selo.ok{background:var(--okf);color:var(--ok)}.selo.alerta{background:var(--alertaf);color:var(--alerta)}.selo.frio{background:var(--friof);color:var(--frio)}
-.botoes{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-button{font:inherit;font-size:.9rem;padding:9px 14px;border-radius:10px;border:1px solid var(--linha);background:var(--cartao);color:var(--texto);cursor:pointer}
-button.principal{background:var(--marca);border-color:var(--marca);color:#fff;font-weight:600}
-button:disabled{opacity:.5;cursor:default}
-.barra{height:10px;background:var(--linha);border-radius:99px;overflow:hidden;margin:10px 0 2px}
-.barra div{height:100%;width:0;background:var(--ok);transition:width .4s}
-.chave{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.9rem}
-.chave input{width:18px;height:18px;accent-color:var(--marca)}
-details{margin-top:12px;font-size:.9rem}summary{cursor:pointer;color:var(--suave)}
-input[type=number]{font:inherit;width:100px;padding:8px;border-radius:8px;border:1px solid var(--linha);background:var(--fundo);color:var(--texto)}
-.cabeca{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
-.links{display:flex;gap:14px}.links a{color:var(--marca);font-size:.85rem;text-decoration:none}
-.grafico{margin-top:10px;min-height:190px}
-.grafico svg{display:block;overflow:visible}
-.grade{stroke:var(--linha);stroke-width:1}
-.eixo{fill:var(--suave);font-size:11px}
-.linha{fill:none;stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}
-.faixa{fill:var(--ok);opacity:.1}
-.vazio{color:var(--suave);font-size:.9rem;padding:70px 0;text-align:center}
-#aviso{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);max-width:90%;background:var(--texto);color:var(--fundo);padding:10px 16px;border-radius:10px;font-size:.9rem;opacity:0;transition:opacity .3s;pointer-events:none}
-#aviso.ver{opacity:1}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--fundo);color:var(--texto);font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+header{position:sticky;top:0;z-index:5;background:var(--fundo);border-bottom:1px solid var(--linha)}
+.topo{max-width:980px;margin:0 auto;padding:12px 16px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+h1{margin:0;font-size:18px}
+.sub{font-size:12px;color:var(--suave2)}
+.vivo{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:99px;background:var(--cartao);border:1px solid var(--linha);font-size:12px;font-weight:650}
+.ponto{width:8px;height:8px;border-radius:50%;background:var(--suave);flex:none}
+.on .ponto{background:var(--ok)}
+.pisca{animation:pisca .7s ease-out}
+@keyframes pisca{from{box-shadow:0 0 0 0 var(--ok)}to{box-shadow:0 0 0 7px transparent}}
+.abas{order:3;flex:1 1 100%;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:var(--linha);border-radius:12px}
+.abas button{min-height:44px;border:0;border-radius:9px;background:transparent;color:var(--texto);font:inherit;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.abas button[aria-selected=true]{background:var(--cartao);font-weight:700}
+.cont{min-width:20px;height:20px;padding:0 6px;border-radius:99px;background:var(--botao);color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+main,#log{max-width:980px;margin:0 auto;padding:12px 16px 28px;display:grid;gap:12px}
+main>*{min-width:0}
+/* No celular a ordem dos cartões segue o design; no desktop vale a ordem do HTML */
+@media (max-width:759px){.o0{order:0}.o1{order:1}.o2{order:2}.o3{order:3}.o4{order:4}.o5{order:5}.o6{order:6}.o7{order:7}}
+.so-desk{display:none}
+@media (min-width:760px){
+ .abas{order:0;flex:0 0 auto;grid-template-columns:auto auto}.abas button{padding:0 22px}
+ main{grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+ .c7{grid-column:span 7}.c5{grid-column:span 5}.c12{grid-column:1/-1}.so-desk{display:flex}.cartao{padding:20px}}
+.cartao{background:var(--cartao);border:1px solid var(--linha);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.cab{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.rot{margin:0;font-size:11px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--suave)}
+.tres{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tres>div,.pilha{display:flex;flex-direction:column;gap:3px}
+.big{font-size:26px;font-weight:700;line-height:1.1}.big small{font-size:15px;font-weight:600}
+.med{font-size:16px;font-weight:650}
+.nota{font-size:12px;color:var(--suave)}
+.q{color:var(--alerta-txt)}.f{color:var(--frio-txt)}.b{color:var(--ok-txt)}
+.estado{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.estado .ponto{background:currentColor}
+.chip{padding:4px 10px;border-radius:99px;font-size:12px;font-weight:650;background:var(--neutro-bg)}
+.chip.frio{background:var(--frio-bg);color:var(--frio-txt)}.chip.marca{background:var(--marca-bg);color:var(--marca-txt)}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+.ender{font-size:22px;font-weight:700;overflow-wrap:anywhere}
+dl{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
+dd{margin:2px 0 0;font-size:14px;font-weight:600;overflow-wrap:anywhere}
+.sep{border-top:1px solid var(--linha);padding-top:12px;display:flex;flex-direction:column;gap:8px}
+button{font:inherit}
+.btn{min-height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--linha);background:var(--cartao);color:var(--texto);font-size:14px;font-weight:600;cursor:pointer}
+.btn.prim{min-height:48px;border:0;background:var(--botao);color:#fff;font-size:15px;font-weight:700}
+.btn:disabled{background:var(--linha);color:var(--suave2);cursor:default}
+.botoes{display:flex;flex-wrap:wrap;gap:8px}
+details{font-size:14px}summary{cursor:pointer;color:var(--suave);min-height:32px}
+input[type=number]{font:inherit;width:100px;min-height:44px;padding:0 8px;border-radius:10px;border:1px solid var(--linha);background:var(--fundo);color:var(--texto)}
+.chave{display:flex;align-items:center;gap:10px;font-size:14px;min-height:44px}
+.chave input{width:20px;height:20px;accent-color:var(--botao)}
+#avisos:empty{display:none}
+.av{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;font-size:12px;margin-bottom:12px}
+.av b{display:block;font-size:14px;margin-bottom:2px}.av svg{flex:none}
+.av.q{background:var(--alerta-bg)}.av.f{background:var(--frio-bg)}.av.m{background:var(--marca-bg);color:var(--marca-txt)}
+.av.perdido{background:#c4412a;color:#fff;flex-wrap:wrap}.av.perdido .btn{border:1.5px solid #fff;background:transparent;color:#fff}
+.parado main .cartao{opacity:.6}
+.g{display:block;overflow:visible}
+.g-grade{stroke:var(--linha);stroke-width:1}.g-eixo{fill:var(--suave);font-size:10px}
+.g-faixa{fill:var(--ok);opacity:.13}.g-faixa-l{stroke:var(--ok);stroke-dasharray:3 3;opacity:.6}
+.g-linha{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.temp{stroke:var(--marca);fill:var(--marca)}.umid{stroke:var(--frio);fill:var(--frio)}
+.g-x{stroke:var(--alerta);stroke-width:2;stroke-linecap:round}
+.vazio{color:var(--suave);font-size:13px;text-align:center;padding:30px 0;margin:0}
+.ev{display:flex;flex-direction:column;gap:4px;padding:10px 0;border-top:1px solid var(--linha);font-size:14px}
+.nv{padding:2px 7px;border-radius:5px;font-size:10px;font-weight:750;letter-spacing:.06em}
+.nv.ERRO{background:var(--alerta);color:var(--cartao)}.nv.AVISO{padding:1px 6px;border:1.5px solid var(--marca);color:var(--marca-txt)}.nv.INFO{background:var(--neutro-bg);color:var(--info-txt)}
+.linha-ev{display:flex;align-items:center;gap:8px}
+.lk{background:none;border:0;padding:0;color:var(--marca-txt);font-weight:650;font-size:13px;cursor:pointer;text-decoration:underline}
+.rodape{margin:4px 0 0;text-align:center;font-size:12px;color:var(--suave2)}
+#log{grid-template-columns:minmax(0,1fr)}
+.cab-log{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}.cab-log h2{margin:0;font-size:20px}
+.filtros{display:flex;flex-wrap:wrap;gap:8px}
+.filtros button{min-height:44px;padding:0 14px;border-radius:99px;border:1px solid var(--linha);background:var(--cartao);color:var(--texto);font-size:13px;font-weight:600;cursor:pointer}
+.filtros button[aria-pressed=true]{background:var(--texto);color:var(--fundo);border-color:var(--texto);font-weight:700}
+.boot{background:var(--cartao);border:1px solid var(--linha);border-radius:14px;overflow:hidden}
+.boot>div{padding:12px 14px;display:flex;justify-content:space-between;gap:8px;background:var(--neutro-bg)}
+.boot ul{list-style:none;margin:0;padding:0}
+.boot li{padding:12px 14px;display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--linha)}
+.boot p{margin:0;font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+/* Evento novo: entra deslizando (250 ms) e fica destacado por ~3 s */
+.novo{animation:entra .25s ease-out,destaque 3s ease-out}
+@keyframes entra{from{opacity:0;transform:translateY(-6px)}}
+@keyframes destaque{from{background:var(--marca-bg)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);max-width:90%;background:var(--texto);color:var(--fundo);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .3s;pointer-events:none}
+#toast.ver{opacity:1}
 </style>
 </head>
 <body>
 <header>
-  <h1>Ninho do filhote</h1>
-  <div id="estado">Conectando ao ESP32…</div>
+<div class="topo">
+  <div><h1>Ninho do filhote</h1><div class="sub" id="ender">ESP32 · conectando…</div></div>
+  <div class="abas" role="tablist" aria-label="Seções">
+    <button role="tab" id="abaPainel" aria-selected="true" aria-controls="painel" onclick="mostrar('painel')">Painel</button>
+    <button role="tab" id="abaLog" aria-selected="false" aria-controls="log" onclick="mostrar('log')">Log <span class="cont" id="naoVistos" hidden></span></button>
+  </div>
+  <div class="vivo" id="vivo"><span class="ponto" id="ponto"></span><span id="vivoTxt">Conectando…</span></div>
+</div>
 </header>
-<main>
-  <section class="cartao">
-    <div class="rotulo">Temperatura do ninho</div>
-    <div class="valor" id="temp">--<small> °C</small></div>
-    <div class="info">Umidade: <b id="umid">--</b> %</div>
-    <div class="info">Faixa ideal: <span id="faixa">--</span></div>
-    <span class="selo" id="seloTemp">--</span>
-  </section>
 
-  <section class="cartao">
-    <div class="rotulo">Peso do filhote</div>
-    <div class="valor" id="peso">--<small> g</small></div>
-    <div class="info" id="infoPeso">Coloque o filhote na balança: o peso é registrado sozinho quando fica estável.</div>
-    <div class="botoes">
-      <button class="principal" onclick="acao('/pesar')">Registrar pesagem</button>
-      <button onclick="acao('/tarar')">Zerar balança</button>
+<main id="painel" role="tabpanel" aria-labelledby="abaPainel">
+  <div id="avisos" class="c12 o0"></div>
+
+  <section class="cartao c7 o1">
+    <h2 class="rot">Ninho · filhote</h2>
+    <div class="tres">
+      <div><span class="rot">Temperatura</span><span class="big" id="temp">—</span><span class="nota" id="faixa"></span></div>
+      <div><span class="rot">Umidade</span><span class="big" id="umid">—</span><span class="nota">relativa · DHT22</span></div>
+      <div><span class="rot">Peso</span><span class="big" id="peso">—</span><span class="nota" id="pesoNota"></span></div>
     </div>
+    <div class="estado" id="estTemp"></div>
     <details>
-      <summary>Calibrar a balança</summary>
-      <p class="info">1. Com a balança vazia, toque em <b>Zerar balança</b>.<br>2. Coloque um objeto de peso conhecido, informe o peso e toque em <b>Calibrar</b>.</p>
-      <input type="number" id="massa" value="100" min="1" step="0.1"> g
-      <button onclick="calibrar()">Calibrar</button>
+      <summary>Balança: pesar, zerar e calibrar</summary>
+      <p class="nota">O peso é registrado sozinho quando fica estável. Para calibrar: zere com a balança vazia, coloque um objeto de peso conhecido, informe o peso e toque em Calibrar.</p>
+      <div class="botoes">
+        <button class="btn" onclick="acao('/pesar')">Registrar pesagem</button>
+        <button class="btn" onclick="acao('/tarar')">Zerar balança</button>
+      </div>
+      <p class="botoes"><label class="chave"><input type="number" id="massa" value="100" min="1" step="0.1"> g</label><button class="btn" onclick="calibrar()">Calibrar</button></p>
     </details>
   </section>
 
-  <section class="cartao">
-    <div class="rotulo">Comida</div>
-    <div class="valor" id="dist">--<small> cm</small></div>
-    <div class="info">Distância do sensor até a comida</div>
-    <div class="barra"><div id="nivel"></div></div>
-    <span class="selo" id="seloComida">--</span>
-    <label class="chave"><input type="checkbox" id="auto" onchange="acao('/auto?on='+(this.checked?1:0))"> Liberar comida automaticamente</label>
-    <div class="info" id="infoLib">--</div>
-    <div class="botoes"><button class="principal" id="btnLiberar" onclick="acao('/liberar')">Liberar comida agora</button></div>
-  </section>
-
-  <section class="cartao largo">
-    <div class="cabeca">
-      <div class="rotulo">Crescimento do filhote (pesagens)</div>
-      <div class="links"><a href="/pesagens.csv">Baixar planilha</a><a href="#" onclick="limpar();return false">Apagar pesagens</a></div>
+  <section class="cartao c5 o3">
+    <div class="cab"><h2 class="rot">Conexão</h2><span class="chip" id="iface">—</span></div>
+    <div class="cab" style="align-items:flex-end">
+      <div class="pilha"><span class="rot">Endereço</span><span class="ender mono" id="ip">—</span></div>
+      <div class="pilha" style="align-items:flex-end"><span id="barras"></span><span class="nota" id="rssi"></span></div>
     </div>
-    <div class="grafico" id="gPeso"></div>
-    <div class="info" id="resumoPeso"></div>
+    <dl>
+      <div><dt class="rot">Rede (SSID)</dt><dd id="ssid">—</dd></div>
+      <div><dt class="rot">MAC</dt><dd class="mono" id="mac">—</dd></div>
+      <div><dt class="rot">Ligado há</dt><dd id="uptime">—</dd></div>
+      <div><dt class="rot">Reconexões</dt><dd id="recon">—</dd></div>
+      <div><dt class="rot">Relógio</dt><dd id="relogio">—</dd></div>
+      <div><dt class="rot">Status</dt><dd id="status">—</dd></div>
+    </dl>
+    <div class="sep">
+      <div class="cab"><span class="rot">Rede medida pelo navegador</span><span class="estado" id="vivo2"></span></div>
+      <div id="gLat"></div>
+      <div class="tres">
+        <div><span class="rot">Latência</span><span class="med" id="lat">—</span></div>
+        <div><span class="rot">Média</span><span class="med" id="media">—</span></div>
+        <div><span class="rot">Requisições</span><span class="med" id="nReq">0</span></div>
+      </div>
+      <span class="nota" id="redeNota"></span>
+    </div>
   </section>
 
-  <section class="cartao largo">
-    <div class="rotulo">Temperatura do ninho: últimas 6 horas</div>
-    <div class="grafico" id="gTemp"></div>
+  <section class="cartao c5 o2">
+    <div class="cab"><h2 class="rot">Comedouro dos pais</h2><span class="chip marca" id="modo">—</span></div>
+    <div class="tres">
+      <div><span class="rot">Comida no prato</span><span class="big" id="nivel">—</span><span class="nota" id="dist"></span></div>
+      <div><span class="rot">Comporta</span><span class="med" id="comporta">—</span></div>
+    </div>
+    <div class="pilha"><span class="rot">Próxima liberação automática</span><span class="med" id="proxima"></span></div>
+    <span class="nota" id="ultima"></span>
+    <label class="chave"><input type="checkbox" id="auto" onchange="acao('/auto?on='+(this.checked?1:0))"> Liberar comida automaticamente</label>
+    <button class="btn prim" id="btnLiberar" onclick="acao('/liberar')">Liberar comida</button>
   </section>
+
+  <section class="cartao c7 o4">
+    <h2 class="rot" id="tTemp">Temperatura · desde que a página abriu</h2>
+    <div id="gTemp"></div>
+    <span class="nota" id="notaFaixa"></span>
+    <h2 class="rot" id="tUmid">Umidade · desde que a página abriu</h2>
+    <div id="gUmid"></div>
+  </section>
+
+  <section class="cartao c7 o5">
+    <div class="cab"><h2 class="rot">Crescimento do filhote</h2><span class="nota">peso por dia</span></div>
+    <div id="gPeso"></div>
+    <span class="nota" id="notaPeso"></span>
+    <div class="botoes"><a class="lk" href="/pesagens.csv">Baixar planilha</a><button class="lk" onclick="limpar()">Apagar pesagens</button></div>
+  </section>
+
+  <section class="cartao c5 o6 so-desk">
+    <div class="cab"><h2 class="rot">Últimos eventos</h2><button class="lk" onclick="mostrar('log')">Ver log completo</button></div>
+    <div id="ultimos"></div>
+  </section>
+
+  <p class="rodape c12 o7" id="rodape"></p>
 </main>
-<div id="aviso"></div>
+
+<section id="log" role="tabpanel" aria-labelledby="abaLog" hidden>
+  <div class="cab-log"><h2>Log do sistema</h2><span class="sub">GET /logs a cada 10 s</span></div>
+  <div class="filtros" role="group" aria-label="Filtrar por nível">
+    <button aria-pressed="true" data-n="" onclick="filtrar(this)">Todos</button>
+    <button aria-pressed="false" data-n="ERRO" onclick="filtrar(this)">Erro</button>
+    <button aria-pressed="false" data-n="AVISO" onclick="filtrar(this)">Aviso</button>
+    <button aria-pressed="false" data-n="INFO" onclick="filtrar(this)">Info</button>
+  </div>
+  <div id="listaLog" style="display:grid;gap:14px"><p class="vazio">Carregando o log…</p></div>
+  <p class="rodape" id="rodapeLog"></p>
+</section>
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script>
-const $=id=>document.getElementById(id);
-let dados=null,pesagens=[],histTemp=[],versaoPesagens=-1;
-const fmt=(v,c)=>v==null||isNaN(v)?'--':Number(v).toFixed(c).replace('.',',');
-const hhmm=ms=>new Date(ms).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-const ddmm=ms=>new Date(ms).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
-const dataHora=ms=>ddmm(ms)+' '+hhmm(ms);
-
-function aviso(t){const a=$('aviso');a.textContent=t;a.classList.add('ver');clearTimeout(a.t);a.t=setTimeout(()=>a.classList.remove('ver'),2800);}
-async function pegar(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error(r.status);return r.json();}
-async function acao(url){
-  try{const r=await fetch(url,{method:'POST'});const j=await r.json();aviso(j.msg);atualizar();}
-  catch(e){aviso('Não consegui falar com o ESP32');}
+const $ = id => document.getElementById(id);
+// Texto vindo do ESP32 (mensagens do log, SSID) é escapado antes de ir
+// para o HTML: um "<" na mensagem não pode virar uma tag.
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'})[c]);
+const fmt = (v, c) => v == null || isNaN(v) ? '—' : Number(v).toFixed(c).replace('.', ',');
+const dois = n => String(n).padStart(2, '0');
+const hms = d => d.toLocaleTimeString('pt-BR');
+const ddmm = d => dois(d.getDate()) + '/' + dois(d.getMonth() + 1);
+function duracao(s) {   // segundos -> "2,1 s", "42 s", "12 min", "3 h 05 min"
+  if (s < 10) return fmt(s, 1) + ' s';
+  if (s < 60) return Math.round(s) + ' s';
+  if (s < 3600) return Math.floor(s / 60) + ' min';
+  return Math.floor(s / 3600) + ' h ' + dois(Math.floor(s % 3600 / 60)) + ' min';
 }
-function calibrar(){
-  const g=parseFloat(String($('massa').value).replace(',','.'));
-  if(!(g>0)){aviso('Informe o peso do objeto em gramas');return;}
-  acao('/calibrar?g='+g);
-}
-function limpar(){if(confirm('Apagar todas as pesagens registradas?'))acao('/limpar');}
-function haQuanto(s){if(s<60)return 'há '+s+' s';if(s<3600)return 'há '+Math.round(s/60)+' min';return 'há '+fmt(s/3600,1)+' h';}
-function selo(el,classe,texto){el.className='selo '+classe;el.textContent=texto;}
 
-async function atualizar(){
-  let d;
-  try{d=await pegar('/dados');}catch(e){$('estado').textContent='Sem conexão com o ESP32. Tentando de novo…';return;}
-  dados=d;
-  // Ninho
-  $('temp').innerHTML=fmt(d.temp,1)+'<small> °C</small>';
-  $('umid').textContent=fmt(d.umid,0);
-  $('faixa').textContent=fmt(d.temp_min,0)+' a '+fmt(d.temp_max,0)+' °C';
-  if(d.temp==null)selo($('seloTemp'),'alerta','Sensor sem leitura');
-  else if(d.temp<d.temp_min)selo($('seloTemp'),'frio','Ninho frio');
-  else if(d.temp>d.temp_max)selo($('seloTemp'),'alerta','Ninho quente');
-  else selo($('seloTemp'),'ok','Temperatura boa');
-  // Balança
-  $('peso').innerHTML=(d.balanca_ok?fmt(d.peso,1):'--')+'<small> g</small>';
-  $('infoPeso').textContent=d.balanca_ok?'Coloque o filhote na balança: o peso é registrado sozinho quando fica estável.':'Balança sem resposta: confira os fios do HX711.';
-  // Comida
-  $('dist').innerHTML=fmt(d.dist,1)+'<small> cm</small>';
-  let nivel=0;
-  if(d.dist!=null)nivel=Math.min(1,Math.max(0,(d.dist_vazio-d.dist)/(d.dist_vazio-d.dist_cheio)));
-  $('nivel').style.width=(nivel*100)+'%';
-  $('nivel').style.background=d.vazio?'var(--alerta)':'var(--ok)';
-  if(d.dist==null)selo($('seloComida'),'alerta','Sensor sem leitura');
-  else if(d.vazio)selo($('seloComida'),'alerta','Pouca comida');
-  else selo($('seloComida'),'ok','Tem comida');
-  if(document.activeElement!==$('auto'))$('auto').checked=d.auto;
-  let txt='Nenhuma liberação desde que o ESP32 ligou.';
-  if(d.liberacoes>0){
-    txt='Última liberação: '+(d.ultima_lib?dataHora(d.ultima_lib*1000):haQuanto(d.ultima_lib_ha_s))+' ('+d.origem+'). Total: '+d.liberacoes+'.';
+// ---------------------------------------------------------------- estado
+let dados = null;                 // última resposta de /dados
+let logs = [], bootAtual = 0;     // /logs (mais recente primeiro)
+let conectado = false, tUltimaResposta = 0;
+let versaoPesagens = -1, pesagens = [];
+const hist = [], MAX_HIST = 1800; // 1 h de leituras (uma a cada 2 s), só na memória
+let histCortado = false;
+const rede = { total: 0, falhas: 0, lat: [] };   // lat: últimas 60 (ms, ou null = sem resposta)
+let filtro = '', novos = new Set();
+let vistoAte = 0;                 // id do último ERRO/AVISO que a pessoa já viu
+try { vistoAte = +localStorage.getItem('ninhoVisto') || 0; } catch (e) {}
+
+// ---------------------------------------------------------------- rede
+// Fila: cada requisição só sai depois que a anterior terminou. O WebServer
+// do ESP32 atende um cliente por vez; requisições em paralelo ficariam
+// esperando lá dentro e estourariam o tempo.
+let fila = Promise.resolve();
+function pedir(url, metodo) {
+  const p = fila.then(() => buscar(url, metodo));
+  fila = p.catch(() => {});
+  return p;
+}
+
+// Uma requisição com limite de 3 s (AbortController cancela o fetch) e
+// medição da latência com performance.now().
+async function buscar(url, metodo) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 3000);
+  const t0 = performance.now();
+  rede.total++;
+  try {
+    const r = await fetch(url, { method: metodo || 'GET', cache: 'no-store', signal: ctrl.signal });
+    const j = await r.json();
+    guardarLatencia(performance.now() - t0);
+    return { ok: r.ok, j };
+  } catch (e) {
+    rede.falhas++;
+    guardarLatencia(null);
+    throw e;
+  } finally {
+    clearTimeout(timer);
   }
-  if(d.auto&&d.espera_s>0)txt+=' Próxima automática possível em '+Math.ceil(d.espera_s/60)+' min.';
-  $('infoLib').textContent=txt;
-  $('btnLiberar').disabled=d.aberta;
-  // Rodapé
-  $('estado').textContent=(d.modo_ap?'Rede própria do ESP32':'Wi-Fi conectado ('+d.rssi+' dBm)')+' · atualizado às '+new Date().toLocaleTimeString('pt-BR');
-  if(d.pesagens_ver!==versaoPesagens){versaoPesagens=d.pesagens_ver;carregarPesagens();}
+}
+function guardarLatencia(ms) {
+  rede.lat.push(ms == null ? null : Math.round(ms));
+  if (rede.lat.length > 60) rede.lat.shift();
 }
 
-// Gráfico de linha simples em SVG (funciona sem internet)
-function grafico(el,pts,o){
-  const W=Math.max(el.clientWidth,260),H=190,m={l:46,r:14,t:12,b:26};
-  if(!pts.length){el.innerHTML='<div class="vazio">'+o.vazio+'</div>';return;}
-  let x0=pts[0].x,x1=x0,y0=pts[0].y,y1=y0;
-  for(const p of pts){x0=Math.min(x0,p.x);x1=Math.max(x1,p.x);y0=Math.min(y0,p.y);y1=Math.max(y1,p.y);}
-  if(x1===x0){x0-=o.xpad;x1+=o.xpad;}
-  const folga=Math.max((y1-y0)*0.1,o.folgaMin);y0-=folga;y1+=folga;
-  // marcas "redondas" no eixo vertical (ex.: 20, 40, 60...)
-  const bruto=(y1-y0)/4,mag=Math.pow(10,Math.floor(Math.log10(bruto))),r=bruto/mag;
-  const passo=(r<=1?1:r<=2?2:r<=2.5?2.5:r<=5?5:10)*mag,casasEixo=passo>=1?0:passo>=0.1?1:2;
-  y0=Math.floor(y0/passo)*passo;y1=Math.ceil(y1/passo)*passo;
-  const X=v=>m.l+(v-x0)/(x1-x0)*(W-m.l-m.r),Y=v=>H-m.b-(v-y0)/(y1-y0)*(H-m.t-m.b);
-  let s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'">';
-  if(o.faixa){const a=Math.max(o.faixa[0],y0),b=Math.min(o.faixa[1],y1);
-    if(b>a)s+='<rect class="faixa" x="'+m.l+'" width="'+(W-m.l-m.r)+'" y="'+Y(b)+'" height="'+(Y(a)-Y(b))+'"/>';}
-  for(let v=y0;v<=y1+passo/1000;v+=passo){const y=Y(v);
-    s+='<line class="grade" x1="'+m.l+'" x2="'+(W-m.r)+'" y1="'+y+'" y2="'+y+'"/>';
-    s+='<text class="eixo" x="'+(m.l-6)+'" y="'+(y+4)+'" text-anchor="end">'+fmt(v,casasEixo)+'</text>';}
-  [[x0,'start'],[(x0+x1)/2,'middle'],[x1,'end']].forEach(([v,a])=>{
-    s+='<text class="eixo" x="'+X(v)+'" y="'+(H-6)+'" text-anchor="'+a+'">'+o.rotuloX(v)+'</text>';});
-  s+='<path class="linha" stroke="'+o.cor+'" d="'+pts.map((p,i)=>(i?'L':'M')+X(p.x).toFixed(1)+' '+Y(p.y).toFixed(1)).join(' ')+'"/>';
-  if(o.pontos)for(const p of pts)
-    s+='<circle cx="'+X(p.x).toFixed(1)+'" cy="'+Y(p.y).toFixed(1)+'" r="4" fill="'+o.cor+'"><title>'+o.dica(p.x)+': '+fmt(p.y,1)+' '+o.un+'</title></circle>';
-  el.innerHTML=s+'</svg>';
+// Laço de atualização SEM setInterval: a próxima volta só é agendada
+// (2 s depois) quando esta terminou, com resposta ou com timeout.
+let tLogs = 0, proxima = null, rodando = false;
+async function ciclo() {
+  if (rodando) return;            // "Tentar agora" durante uma volta: ignora
+  rodando = true;
+  clearTimeout(proxima);
+  try {
+    const r = await pedir('/dados');
+    if (!r.ok) throw new Error(r.status);
+    receberDados(r.j);
+    if (r.j.pesagens_ver !== versaoPesagens) {
+      const p = await pedir('/pesagens');
+      if (p.ok) { pesagens = p.j.pontos; versaoPesagens = r.j.pesagens_ver; desenharPeso(); }
+    }
+    if (Date.now() - tLogs >= 10000) {          // /logs a cada 10 s, na mesma fila
+      tLogs = Date.now();
+      const l = await pedir('/logs');
+      if (l.ok) receberLogs(l.j);
+    }
+  } catch (e) {
+    semResposta();                // timeout, rede fora ou erro HTTP
+  }
+  rodando = false;
+  proxima = setTimeout(ciclo, 2000);
 }
 
-async function carregarPesagens(){
-  try{pesagens=(await pegar('/pesagens')).pontos;desenharPeso();}catch(e){}
+async function acao(url) {
+  try {
+    const r = await pedir(url, 'POST');
+    toast(r.j.msg);               // inclusive o erro, ex.: "A comporta já está aberta"
+  } catch (e) {
+    toast('Não consegui falar com o ESP32');
+  }
+  ciclo();
 }
-function desenharPeso(){
-  const semHora=pesagens.some(p=>!p[0]);  // pesagens feitas sem relógio: usa a ordem
-  const pts=pesagens.map((p,i)=>({x:semHora?i:p[0]*1000,y:p[1]}));
-  const dias=pts.length>1&&!semHora&&pts[pts.length-1].x-pts[0].x>86400000;
-  grafico($('gPeso'),pts,{cor:'#c4622d',un:'g',pontos:true,folgaMin:5,
-    xpad:semHora?1:60000,vazio:'Nenhuma pesagem ainda. Coloque o filhote na balança.',
-    rotuloX:semHora?(v=>v<0||v>pts.length-1?'':'#'+(Math.round(v)+1)):(v=>dias?ddmm(v):hhmm(v)),
-    dica:semHora?(v=>'Pesagem #'+(v+1)):dataHora});
-  if(!pts.length){$('resumoPeso').textContent='';return;}
-  const a=pts[0].y,b=pts[pts.length-1].y,dif=b-a;
-  $('resumoPeso').textContent=pts.length+(pts.length>1?' pesagens':' pesagem')+' · última: '+fmt(b,1)+' g'+
-    (pts.length>1?' · variação desde a primeira: '+(dif>=0?'+':'')+fmt(dif,1)+' g':'');
+function calibrar() {
+  const g = parseFloat(String($('massa').value).replace(',', '.'));
+  if (!(g > 0)) { toast('Informe o peso do objeto em gramas'); return; }
+  acao('/calibrar?g=' + g);
 }
-
-async function carregarTemp(){
-  try{const j=await pegar('/historico');const agora=Date.now();
-    histTemp=j.pontos.map(p=>({x:agora-(j.agora-p[0]),y:p[1]}));desenharTemp();}catch(e){}
-}
-function desenharTemp(){
-  const d=dados||{};
-  grafico($('gTemp'),histTemp,{cor:'#d08a1e',un:'°C',folgaMin:1,xpad:60000,
-    faixa:d.temp_min!=null?[d.temp_min,d.temp_max]:null,
-    vazio:'Aguardando as primeiras leituras (1 ponto por minuto).',rotuloX:hhmm,dica:dataHora});
+function limpar() { if (confirm('Apagar todas as pesagens registradas?')) acao('/limpar'); }
+function toast(t) {
+  const a = $('toast');
+  a.textContent = t; a.classList.add('ver');
+  clearTimeout(a.t); a.t = setTimeout(() => a.classList.remove('ver'), 3000);
 }
 
-(async()=>{
-  try{await fetch('/hora?ts='+Math.floor(Date.now()/1000));}catch(e){}  // acerta o relógio do ESP32 se ele não tiver internet
-  await atualizar();
-  carregarTemp();
-  setInterval(atualizar,2000);
-  setInterval(carregarTemp,60000);
-  window.addEventListener('resize',()=>{desenharPeso();desenharTemp();});
+// ---------------------------------------------------------------- respostas
+function receberDados(d) {
+  dados = d; conectado = true; tUltimaResposta = Date.now();
+  hist.push({ t: Date.now(), temp: d.temp, umid: d.umid });
+  if (hist.length > MAX_HIST) { hist.shift(); histCortado = true; }
+  const p = $('ponto');            // "ao vivo": o ponto pisca a cada resposta
+  p.classList.remove('pisca'); void p.offsetWidth; p.classList.add('pisca');
+  desenharPainel();
+}
+function semResposta() {
+  conectado = false;
+  desenharPainel();
+}
+function receberLogs(j) {
+  const antes = new Set(logs.map(e => e.id));
+  // Eventos novos (só depois da primeira carga) entram com animação
+  novos = logs.length ? new Set(j.logs.filter(e => !antes.has(e.id)).map(e => e.id)) : new Set();
+  const mudou = j.logs.length !== logs.length || (j.logs[0] && j.logs[0].id) !== (logs[0] && logs[0].id);
+  logs = j.logs; bootAtual = j.boot_atual;
+  if (!$('log').hidden) marcarVistos();
+  contarNaoVistos();
+  if (mudou) { desenharLog(); desenharUltimos(); }
+  novos = new Set();
+}
+
+// ---------------------------------------------------------------- painel
+function desenharPainel() {
+  document.body.classList.toggle('parado', !conectado);
+  $('vivo').classList.toggle('on', conectado);
+  $('vivoTxt').textContent = conectado ? 'Ao vivo · ' + ultimaLatencia() + ' ms' : 'Parado';
+  desenharAvisos();
+  desenharRede();
+  const d = dados;
+  if (!d) { $('rodape').textContent = 'Ainda sem resposta do ESP32.'; return; }
+  $('ender').textContent = 'ESP32 · ' + d.ip;
+
+  // Ninho
+  const quente = d.temp != null && d.temp > d.temp_max, frio = d.temp != null && d.temp < d.temp_min;
+  $('temp').innerHTML = fmt(d.temp, 1) + ' <small>°C</small>';
+  $('temp').className = 'big' + (quente ? ' q' : frio ? ' f' : '');
+  $('faixa').textContent = 'ideal ' + fmt(d.temp_min, 0) + '–' + fmt(d.temp_max, 0) + ' °C';
+  $('umid').innerHTML = fmt(d.umid, 0) + ' <small>%</small>';
+  const pesando = d.balanca_ok && d.peso != null && d.peso >= 5;
+  $('peso').innerHTML = pesando ? fmt(d.peso, 1) + ' <small>g</small>' : '—';
+  $('pesoNota').textContent = !d.balanca_ok ? 'balança sem leitura' : pesando ? 'na balança' : 'balança vazia';
+  $('pesoNota').className = 'nota' + (d.balanca_ok ? '' : ' q');
+  const est = d.temp == null ? ['q', 'DHT22 sem leitura'] : quente ? ['q', 'Acima da faixa ideal'] :
+              frio ? ['f', 'Abaixo da faixa ideal'] : ['b', 'Dentro da faixa ideal'];
+  $('estTemp').className = 'estado ' + est[0];
+  $('estTemp').innerHTML = '<span class="ponto"></span>' + est[1];
+
+  // Comedouro: nível = onde a distância medida fica entre "prato cheio" e "prato vazio"
+  let nivel = null;
+  if (d.dist != null) nivel = Math.min(1, Math.max(0, (d.dist_vazio - d.dist) / (d.dist_vazio - d.dist_cheio)));
+  $('modo').textContent = d.auto ? 'Automático' : 'Manual';
+  $('nivel').textContent = nivel == null ? '—' : Math.round(nivel * 100) + ' %';
+  $('nivel').className = 'big' + (d.vazio ? ' q' : '');
+  $('dist').textContent = d.dist == null ? 'sensor sem leitura' : 'sensor a ' + fmt(d.dist, 1) + ' cm da comida';
+  $('comporta').textContent = d.aberta ? 'Aberta' : 'Fechada';
+  // espera_s = quanto falta para a próxima liberação AUTOMÁTICA ser permitida.
+  // Não bloqueia a liberação manual.
+  $('proxima').textContent = !d.auto ? 'desligada' :
+    d.espera_s > 0 ? 'em ' + duracao(d.espera_s) : 'quando o prato esvaziar';
+  $('ultima').textContent = d.liberacoes > 0 ?
+    'Última liberação há ' + duracao(d.ultima_lib_ha_s) + ' (' + d.origem + ') · ' + d.liberacoes + ' desde que o ESP32 ligou' :
+    'Nenhuma liberação desde que o ESP32 ligou';
+  if (document.activeElement !== $('auto')) $('auto').checked = d.auto;
+
+  // Conexão
+  const ap = d.interface === 'AP';
+  $('iface').textContent = ap ? 'AP · rede própria' : 'STA · no roteador';
+  $('iface').className = 'chip ' + (ap ? 'marca' : 'frio');
+  $('ip').innerHTML = esc(d.ip) + '<span class="nota" style="font-size:inherit">:' + d.porta + '</span>';
+  $('ssid').textContent = d.ssid;
+  $('mac').textContent = d.mac;
+  $('uptime').textContent = duracao(d.uptime_s);
+  $('recon').textContent = d.reconexoes;
+  $('relogio').textContent = d.hora_ok ? 'acertado' : 'sem hora';
+  $('relogio').className = d.hora_ok ? '' : 'q';
+  $('status').textContent = ap ? 'rede própria ativa' : d.conectado ? 'conectado' : 'desconectado';
+  // Sinal: em modo AP o ESP32 é o ponto de acesso, então não existe RSSI
+  const barras = ap || !d.rssi ? 0 : d.rssi >= -55 ? 4 : d.rssi >= -65 ? 3 : d.rssi >= -75 ? 2 : 1;
+  let s = '<svg width="26" height="20" viewBox="0 0 26 20" role="img" aria-label="' + (ap ? 'Sinal não se aplica' : 'Sinal: ' + barras + ' de 4 barras') + '">';
+  for (let i = 0; i < 4; i++) s += '<rect x="' + i * 7 + '" y="' + (14 - i * 4.4) + '" width="4" height="' + (5 + i * 4.4) + '" rx="1" style="fill:var(' + (i < barras ? '--texto' : '--linha') + ')"/>';
+  $('barras').innerHTML = s + '</svg>';
+  $('rssi').textContent = ap ? 'RSSI não se aplica' : d.rssi + ' dBm';
+
+  desenharGraficos();
+  $('rodape').textContent = (conectado ? 'Atualizado às ' : 'Última leitura às ') + hms(new Date(tUltimaResposta)) + (bootAtual ? ' · boot ' + bootAtual : '');
+}
+
+// Faixas de aviso no topo do painel. Só reescreve quando o texto muda,
+// para o leitor de tela não repetir o aviso a cada 2 s.
+const ICONES = {
+  term: 'M14 14.8V5a2 2 0 1 0-4 0v9.8a4 4 0 1 0 4 0z',
+  tri: 'M12 3 2 20h20L12 3zM12 10v4M12 17v.5',
+  wifi: 'M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5v.5',
+  semWifi: 'M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5v.5M4 4l16 16'
+};
+let avisosAntes = '';
+function faixa(classe, icone, titulo, texto, extra) {
+  return '<div class="av ' + classe + '" role="' + (classe === 'm' || classe === 'f' ? 'status' : 'alert') + '">' +
+    '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="' + ICONES[icone] + '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+    '<div><b>' + titulo + '</b>' + texto + '</div>' + (extra || '') + '</div>';
+}
+function desenharAvisos() {
+  const d = dados;
+  let h = '';
+  if (!conectado) {
+    const ha = tUltimaResposta ? 'há ' + duracao((Date.now() - tUltimaResposta) / 1000) : '';
+    h += faixa('perdido', 'semWifi', 'Sem resposta do ESP32 ' + ha,
+      'Pode ser o ESP32 desligado, o Wi-Fi caído ou este aparelho fora da rede. Tentando de novo a cada 2 s.' +
+      (tUltimaResposta ? ' Última leitura às ' + hms(new Date(tUltimaResposta)) + '.' : ''),
+      '<button class="btn" onclick="ciclo()">Tentar agora</button>');
+  }
+  if (d) {
+    const fx = fmt(d.temp_min, 0) + '–' + fmt(d.temp_max, 0) + ' °C';
+    if (d.temp == null) h += faixa('m', 'tri', 'DHT22 sem leitura', 'O ESP32 respondeu, mas sem temperatura e umidade. Confira o cabo do sensor.');
+    else if (d.temp > d.temp_max) h += faixa('q', 'term', 'Temperatura alta: ' + fmt(d.temp, 1) + ' °C', 'Acima da faixa ideal (' + fx + ') no ponto do sensor.');
+    else if (d.temp < d.temp_min) h += faixa('f', 'term', 'Temperatura baixa: ' + fmt(d.temp, 1) + ' °C', 'Abaixo da faixa ideal (' + fx + ') no ponto do sensor.');
+    if (d.vazio) h += faixa('q', 'tri', 'Pouca comida no prato', 'O sensor está a ' + fmt(d.dist, 1) + ' cm da comida (limite: ' + fmt(d.dist_vazio, 0) + ' cm).');
+    if (d.dist == null) h += faixa('m', 'tri', 'Sensor de distância sem leitura', 'Confira os fios do HC-SR04.');
+    if (!d.balanca_ok) h += faixa('m', 'tri', 'Balança sem resposta', 'Confira os fios do HX711.');
+    if (d.modo_ap) h += faixa('f', 'wifi', 'Modo AP: rede própria do ESP32', 'O ESP32 não conectou ao roteador e continua tentando a cada 15 s.' + (d.hora_ok ? '' : ' O relógio está sem hora.'));
+  }
+  if (h !== avisosAntes) { $('avisos').innerHTML = h; avisosAntes = h; }
+  const btn = $('btnLiberar');      // só a falta de conexão bloqueia a liberação manual
+  btn.disabled = !conectado;
+  btn.textContent = conectado ? 'Liberar comida' : 'Liberar comida · sem conexão';
+}
+
+function ultimaLatencia() {
+  for (let i = rede.lat.length - 1; i >= 0; i--) if (rede.lat[i] != null) return rede.lat[i];
+  return '—';
+}
+function desenharRede() {
+  const ok = rede.lat.filter(v => v != null);
+  $('lat').textContent = ok.length ? ultimaLatencia() + ' ms' : '—';
+  $('media').textContent = ok.length ? Math.round(ok.reduce((a, b) => a + b, 0) / ok.length) + ' ms' : '—';
+  $('nReq').textContent = rede.total.toLocaleString('pt-BR');
+  $('redeNota').textContent = 'GET /dados a cada 2 s · /logs a cada 10 s · ' + rede.falhas + ' sem resposta';
+  $('redeNota').className = 'nota' + (rede.falhas ? ' q' : '');
+  $('vivo2').className = 'estado ' + (conectado ? 'b' : 'q');
+  $('vivo2').innerHTML = '<span class="ponto"></span>' + (conectado ? 'ao vivo' : 'sem resposta');
+  // Latência das últimas 60 requisições; um X vermelho = sem resposta
+  const el = $('gLat'), W = Math.max(el.clientWidth, 240), H = 64, max = Math.max(200, ...ok);
+  const X = i => (2 + (i + 60 - rede.lat.length) / 59 * (W - 4)).toFixed(1);
+  const Y = v => (6 + (1 - v / max) * (H - 12)).toFixed(1);
+  let d = '', x = '', ant = false;
+  rede.lat.forEach((v, i) => {
+    if (v == null) { x += 'M' + (X(i) - 3) + ' 2l6 6M' + (+X(i) + 3) + ' 2l-6 6'; ant = false; }
+    else { d += (ant ? 'L' : 'M') + X(i) + ' ' + Y(v); ant = true; }
+  });
+  el.innerHTML = '<svg class="g" viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="' + H + '" role="img" aria-label="Latência das últimas ' + rede.lat.length + ' requisições">' +
+    '<path class="g-grade" stroke-dasharray="3 3" d="M0 ' + Y(100) + 'H' + W + '"/><text class="g-eixo" x="0" y="' + (Y(100) - 4) + '">100 ms</text>' +
+    '<path class="g-linha umid" style="fill:none;stroke-width:1.8" d="' + d + '"/><path class="g-x" d="' + x + '"/></svg>';
+}
+
+// Gráfico de linha em SVG. pts = [{x, y}]; y null = sem leitura, vira uma
+// lacuna na linha (em vez de ligar os dois lados do buraco).
+function grafico(el, pts, o) {
+  const W = Math.max(el.clientWidth, 260), H = o.H, m = { l: 36, r: 12, t: 10, b: 22 };
+  const ys = pts.filter(p => p.y != null).map(p => p.y);
+  if (!ys.length) { el.innerHTML = '<p class="vazio">' + o.vazio + '</p>'; return; }
+  let lo = Math.min(...ys), hi = Math.max(...ys);
+  if (o.faixa) { lo = Math.min(lo, o.faixa[0]); hi = Math.max(hi, o.faixa[1]); }
+  const folga = Math.max((hi - lo) * 0.1, o.folga); lo -= folga; hi += folga;
+  let x0 = pts[0].x, x1 = pts[pts.length - 1].x;
+  if (x1 === x0) { x0 -= 60000; x1 += 60000; }
+  const X = v => +(m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r)).toFixed(1);
+  const Y = v => +(m.t + (1 - (v - lo) / (hi - lo)) * (H - m.t - m.b)).toFixed(1);
+  let s = '<svg class="g" viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="' + H + '" role="img" aria-label="' + o.aria + '">';
+  if (o.faixa) s += '<rect class="g-faixa" x="' + m.l + '" y="' + Y(o.faixa[1]) + '" width="' + (W - m.l - m.r) + '" height="' + (Y(o.faixa[0]) - Y(o.faixa[1])) + '"/>';
+  // Marcas do eixo vertical: os limites da faixa ideal, ou o menor e o maior valor
+  for (const v of new Set(o.faixa || [Math.min(...ys), Math.max(...ys)]))
+    s += '<path class="' + (o.faixa ? 'g-faixa-l' : 'g-grade') + '" d="M' + m.l + ' ' + Y(v) + 'H' + (W - m.r) + '"/>' +
+         '<text class="g-eixo" x="' + (m.l - 6) + '" y="' + (Y(v) + 4) + '" text-anchor="end">' + fmt(v, o.casas) + '</text>';
+  let d = '', ant = false, ult = null;
+  for (const p of pts) {
+    if (p.y == null) { ant = false; continue; }
+    d += (ant ? 'L' : 'M') + X(p.x) + ' ' + Y(p.y);
+    ant = true; ult = p;
+    if (o.pontos) s += '<circle class="' + o.cor + '" cx="' + X(p.x) + '" cy="' + Y(p.y) + '" r="3.5"/>';
+  }
+  s += '<path class="g-linha ' + o.cor + '" style="fill:none" d="' + d + '"/>';
+  if (!o.pontos) s += '<circle class="' + o.cor + '" cx="' + X(ult.x) + '" cy="' + Y(ult.y) + '" r="4" style="stroke:var(--cartao);stroke-width:2"/>';
+  s += '<text class="g-eixo" x="' + m.l + '" y="' + (H - 6) + '">' + o.rotX(x0) + '</text>' +
+       '<text class="g-eixo" x="' + (W - m.r) + '" y="' + (H - 6) + '" text-anchor="end">' + o.rotFim(x1, ult) + '</text>';
+  el.innerHTML = s + '</svg>';
+}
+
+function desenharGraficos() {
+  if (!dados || $('painel').hidden) return;
+  const periodo = histCortado ? 'última hora' : 'desde que a página abriu';
+  $('tTemp').textContent = 'Temperatura · ' + periodo;
+  $('tUmid').textContent = 'Umidade · ' + periodo;
+  const hora = ms => hms(new Date(ms)).slice(0, 5);
+  grafico($('gTemp'), hist.map(h => ({ x: h.t, y: h.temp })), {
+    H: 130, cor: 'temp', folga: 1, casas: 0, faixa: [dados.temp_min, dados.temp_max],
+    vazio: 'Aguardando leituras do DHT22.', aria: 'Temperatura do ninho ' + periodo,
+    rotX: hora, rotFim: (x, u) => 'agora · ' + fmt(u.y, 1) + ' °C' });
+  grafico($('gUmid'), hist.map(h => ({ x: h.t, y: h.umid })), {
+    H: 110, cor: 'umid', folga: 2, casas: 0,
+    vazio: 'Aguardando leituras do DHT22.', aria: 'Umidade do ninho ' + periodo,
+    rotX: hora, rotFim: (x, u) => 'agora · ' + fmt(u.y, 0) + ' %' });
+  $('notaFaixa').textContent = 'Faixa verde = ideal (' + fmt(dados.temp_min, 0) + '–' + fmt(dados.temp_max, 0) + ' °C), informada pelo ESP32. Lacuna na linha = sem leitura.';
+}
+
+function desenharPeso() {
+  // Epoch 0 = pesagem feita antes de o ESP32 saber a hora: sem data, não dá para plotar
+  const comData = pesagens.filter(p => p[0] > 0), sem = pesagens.length - comData.length;
+  grafico($('gPeso'), comData.map(p => ({ x: p[0] * 1000, y: p[1] })), {
+    H: 160, cor: 'temp', folga: 5, casas: 0, pontos: true,
+    vazio: 'Nenhuma pesagem ainda. Coloque o filhote na balança.', aria: 'Peso do filhote, ' + comData.length + ' pesagens',
+    rotX: ms => ddmm(new Date(ms)), rotFim: (x, u) => ddmm(new Date(x)) + ' · ' + fmt(u.y, 1) + ' g' });
+  $('notaPeso').textContent = sem ? sem + (sem > 1 ? ' pesagens sem data não aparecem' : ' pesagem sem data não aparece') + ' no gráfico.' : '';
+}
+
+// ---------------------------------------------------------------- log
+function quando(e) {
+  if (e.t) { const d = new Date(e.t * 1000); return ddmm(d) + ' · ' + hms(d); }
+  return 'sem hora · boot ' + e.boot + ' · ' + duracao(e.ms / 1000) + ' após ligar';
+}
+function itemLog(e) {
+  return '<div class="linha-ev"><span class="nv ' + e.nivel + '">' + e.nivel + '</span><span class="nota">' + quando(e) + '</span></div>';
+}
+function desenharLog() {
+  const n = { '': logs.length, ERRO: 0, AVISO: 0, INFO: 0 };
+  logs.forEach(e => n[e.nivel]++);
+  for (const b of document.querySelectorAll('.filtros button'))
+    b.textContent = (b.dataset.n ? b.dataset.n[0] + b.dataset.n.slice(1).toLowerCase() : 'Todos') + ' · ' + n[b.dataset.n];
+  // Agrupa por boot, mantendo a ordem (mais recente primeiro)
+  const grupos = [];
+  for (const e of logs) {
+    if (!grupos.length || grupos[grupos.length - 1].boot !== e.boot) grupos.push({ boot: e.boot, ev: [] });
+    grupos[grupos.length - 1].ev.push(e);
+  }
+  let h = '';
+  for (const g of grupos) {
+    const vis = g.ev.filter(e => !filtro || e.nivel === filtro);
+    if (!vis.length) continue;
+    const atual = g.boot === bootAtual;
+    const direita = atual && dados ? 'ligado há ' + duracao(dados.uptime_s) : g.ev.every(e => !e.t) ? 'sem relógio' : '';
+    h += '<section class="boot"><div><h3 class="rot">Boot ' + g.boot + (atual ? ' · atual' : '') + '</h3><span class="nota">' + direita + '</span></div><ul>';
+    for (const e of vis) h += '<li' + (novos.has(e.id) ? ' class="novo"' : '') + '>' + itemLog(e) + '<p>' + esc(e.msg) + '</p></li>';
+    h += '</ul></section>';
+  }
+  $('listaLog').innerHTML = h || '<p class="vazio">' + (logs.length ? 'Nenhum evento deste nível.' : 'Nenhum evento registrado ainda.') + '</p>';
+  $('rodapeLog').textContent = 'Mostrando ' + logs.length + ' eventos guardados no ESP32';
+}
+function desenharUltimos() {
+  $('ultimos').innerHTML = logs.slice(0, 4).map(e => '<div class="ev">' + itemLog(e) + '<span>' + esc(e.msg) + '</span></div>').join('') ||
+    '<p class="vazio">Nenhum evento ainda.</p>';
+}
+function filtrar(b) {
+  filtro = b.dataset.n;
+  for (const x of document.querySelectorAll('.filtros button')) x.setAttribute('aria-pressed', x === b);
+  desenharLog();
+}
+// Contador da aba Log: ERRO e AVISO com id maior que o último já visto
+function contarNaoVistos() {
+  if (logs.length && vistoAte > logs[0].id) vistoAte = 0;   // log apagado: os ids recomeçaram
+  const n = logs.filter(e => e.nivel !== 'INFO' && e.id > vistoAte).length;
+  $('naoVistos').hidden = !n;
+  $('naoVistos').textContent = n;
+  $('abaLog').setAttribute('aria-label', n ? 'Log, ' + n + ' erros ou avisos não vistos' : 'Log');
+}
+function marcarVistos() {
+  if (!logs.length) return;
+  vistoAte = logs[0].id;
+  try { localStorage.setItem('ninhoVisto', vistoAte); } catch (e) {}
+  contarNaoVistos();
+}
+
+function mostrar(aba) {
+  const log = aba === 'log';
+  $('painel').hidden = log; $('log').hidden = !log;
+  $('abaPainel').setAttribute('aria-selected', !log);
+  $('abaLog').setAttribute('aria-selected', log);
+  if (log) marcarVistos();
+  else { desenharGraficos(); desenharRede(); desenharPeso(); }
+  window.scrollTo(0, 0);
+}
+
+window.addEventListener('resize', () => { desenharGraficos(); desenharRede(); desenharPeso(); });
+(async () => {
+  // Acerta o relógio do ESP32 com o do navegador, caso ele esteja sem internet
+  try { await pedir('/hora?ts=' + Math.floor(Date.now() / 1000)); } catch (e) {}
+  ciclo();
 })();
 </script>
 </body>
